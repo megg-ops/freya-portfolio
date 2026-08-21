@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 import { useSiteStore } from "../../app/store";
 import { ACTIVE_SEASON, SEASON_ASSETS } from "./season-assets";
+import { Shiba } from "./Shiba";
 import { Tree } from "./Tree";
 import styles from "./DaylightScene.module.css";
 
@@ -168,6 +169,7 @@ export function DaylightScene() {
         src={springAssets.daylightShell.figure}
         alt="Freya，戴棒球帽扎高马尾，站在树旁"
       />
+      <Shiba />
 
       <div className={styles.copy}>
         <div className={styles.eyebrow}>Daylight · 生长</div>
