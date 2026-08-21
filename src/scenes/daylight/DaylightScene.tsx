@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { useSiteStore } from "../../app/store";
 import { ACTIVE_SEASON, SEASON_ASSETS } from "./season-assets";
+import { Tree } from "./Tree";
 import styles from "./DaylightScene.module.css";
 
 const projects = [
@@ -41,13 +42,14 @@ const nodules = [
 export function DaylightScene() {
   const season = useSiteStore((state) => state.season);
   const springAssets = SEASON_ASSETS[ACTIVE_SEASON];
+  const sceneRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     document.documentElement.dataset.season = season;
   }, [season]);
 
   return (
-    <main className={styles.hero}>
+    <main ref={sceneRef} className={styles.hero}>
       <div className={styles.sky} />
       <div className={styles.soil} />
 
@@ -126,13 +128,8 @@ export function DaylightScene() {
         />
       </svg>
 
-      <div className={styles.treeShadow} />
       <div className={styles.treeWrap}>
-        <img
-          className={styles.tree}
-          src={springAssets.daylightShell.treeReference}
-          alt="一棵完整的树：根、干、分枝与树冠"
-        />
+        <Tree layers={springAssets.treeLayers} parallaxTargetRef={sceneRef} />
 
         <svg
           className={styles.leaders}

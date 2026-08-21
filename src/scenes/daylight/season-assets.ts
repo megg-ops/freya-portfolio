@@ -6,7 +6,6 @@ interface SpringAssets {
   status: "ready";
   daylightShell: {
     figure: string;
-    treeReference: string;
   };
   treeLayers: readonly [string, string, string, string, string, string];
 }
@@ -23,17 +22,14 @@ export const SEASON_ASSETS = {
     status: "ready",
     daylightShell: {
       figure: "/assets/freya-spring-cutout.png",
-      treeReference: "/assets/tree-spring-full.svg",
     },
-    // These are the six layers used by the validated spring demo. Tree migration
-    // will publish and consume them without changing the season interface.
     treeLayers: [
-      "assets/tree-2.5d/spring/seedream-native-v1/02-layer.png",
-      "assets/tree-2.5d/spring/seedream-native-v1/03-layer.png",
-      "assets/tree-2.5d/spring/seedream-native-v1/04-layer.png",
-      "assets/tree-2.5d/spring/seedream-native-v1/05-layer.png",
-      "assets/tree-2.5d/spring/seedream-native-v1/06-layer.png",
-      "assets/tree-2.5d/spring/seedream-native-v1/07-layer.png",
+      "/assets/tree/spring/02-layer.png",
+      "/assets/tree/spring/03-layer.png",
+      "/assets/tree/spring/04-layer.png",
+      "/assets/tree/spring/05-layer.png",
+      "/assets/tree/spring/06-layer.png",
+      "/assets/tree/spring/07-layer.png",
     ],
   },
   summer: {
