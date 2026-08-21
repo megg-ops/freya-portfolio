@@ -1,0 +1,15 @@
+:root {
+  --color-paper: #f7f4ec;
+  --color-sky: #eef3e4;
+  --color-soil: #e7decb;
+  --color-soil-deep: #dcd0b8;
+  --color-ink: #33372e;
+  --color-ink-muted: #6b7263;
+  --color-green: #5f8250;
+  --color-green-light: #8cac69;
+  --color-clay: #b8734a;
+  --z-scene: 0;
+  --z-content: 10;
+  --z-navigation: 20;
+  --z-overlay: 40;
+}

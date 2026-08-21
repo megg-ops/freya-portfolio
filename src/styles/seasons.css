@@ -1,0 +1,27 @@
+:root[data-season="spring"] {
+  --season-background: var(--color-sky);
+  --season-foreground: var(--color-ink);
+  --season-accent: var(--color-green);
+  --season-atmosphere: #d9e7c4;
+}
+
+:root[data-season="summer"] {
+  --season-background: #e8efe0;
+  --season-foreground: #2f392b;
+  --season-accent: #496d43;
+  --season-atmosphere: #bfd2ae;
+}
+
+:root[data-season="autumn"] {
+  --season-background: #f1eadc;
+  --season-foreground: #46392d;
+  --season-accent: #a45f39;
+  --season-atmosphere: #dfb47f;
+}
+
+:root[data-season="winter"] {
+  --season-background: #edf0ed;
+  --season-foreground: #343a36;
+  --season-accent: #687b75;
+  --season-atmosphere: #d6dedc;
+}

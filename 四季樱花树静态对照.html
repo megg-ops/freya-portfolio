@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>品牌樱花树 · 四季静态对照</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --paper:#f7f7f4;
+  --surface:#fff;
+  --ink:#283027;
+  --muted:#616b60;
+  --line:#d9ded7;
+  --green:#4f7150;
+  --green-soft:#e5eee3;
+  --pending:#826d49;
+  --pending-soft:#f4eddd;
+}
+html{color-scheme:light}
+body{
+  margin:0;
+  color:var(--ink);
+  background:var(--paper);
+  font:400 15px/1.6 "Microsoft YaHei","PingFang SC",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+main{
+  width:min(1680px,100%);
+  margin:0 auto;
+  padding:clamp(24px,4vw,56px);
+}
+header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:28px;
+  margin-bottom:28px;
+}
+.heading{max-width:70ch}
+h1{
+  margin:0 0 8px;
+  font-size:clamp(28px,3.2vw,48px);
+  line-height:1.12;
+  letter-spacing:-.025em;
+  font-weight:600;
+  text-wrap:balance;
+}
+.intro{margin:0;color:var(--muted);text-wrap:pretty}
+.legend{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+  flex:0 0 auto;
+}
+.status{
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  padding:5px 11px;
+  border-radius:999px;
+  font-size:13px;
+  line-height:1;
+  white-space:nowrap;
+}
+.status::before{
+  content:"";
+  width:7px;
+  height:7px;
+  margin-right:7px;
+  border-radius:50%;
+  background:currentColor;
+}
+.selected{color:#355c3a;background:var(--green-soft)}
+.pending{color:#765f37;background:var(--pending-soft)}
+.comparison{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(260px,1fr));
+  gap:14px;
+  overflow-x:auto;
+  padding:0 0 12px;
+  scroll-snap-type:x proximity;
+}
+.season{
+  min-width:260px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--surface);
+  scroll-snap-align:start;
+}
+.season[data-state="selected"]{border-color:#83a584}
+.season-head{
+  min-height:76px;
+  padding:15px 16px 13px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.season-name{margin:0;font-size:19px;line-height:1.25;font-weight:600}
+.season-note{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
+.season-head .status{min-height:26px;padding:4px 9px;font-size:12px}
+.artboard{
+  position:relative;
+  aspect-ratio:1122/1402;
+  overflow:hidden;
+  background:#fbfaf7;
+}
+.artboard img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+.guide{
+  position:absolute;
+  left:0;
+  right:0;
+  height:1px;
+  pointer-events:none;
+  background:rgba(40,48,39,.16);
+}
+.guide::after{
+  position:absolute;
+  top:3px;
+  right:7px;
+  padding:1px 5px;
+  border-radius:3px;
+  color:#596158;
+  background:rgba(255,255,255,.86);
+  font-size:10px;
+  line-height:1.4;
+}
+.guide-crown{top:6%}
+.guide-crown::after{content:"树冠上沿"}
+.guide-ground{top:69.3%}
+.guide-ground::after{content:"根颈线"}
+.review{
+  margin-top:24px;
+  padding:22px 24px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:minmax(180px,.65fr) minmax(0,2fr);
+  gap:24px;
+}
+.review h2{margin:0;font-size:20px;line-height:1.3}
+.review p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.checks{
+  margin:0;
+  padding-left:20px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px 28px;
+}
+.checks li{padding-left:2px}
+.source{
+  margin:18px 0 0;
+  color:var(--muted);
+  font-size:12px;
+  text-align:right;
+}
+.source code{color:var(--ink)}
+@media (max-width:1050px){
+  .comparison{grid-template-columns:repeat(4,minmax(300px,72vw))}
+  .review{grid-template-columns:1fr}
+  .checks{grid-template-columns:1fr}
+}
+@media (max-width:680px){
+  main{padding:22px 16px 34px}
+  header{align-items:flex-start;flex-direction:column;margin-bottom:20px}
+  .legend{justify-content:flex-start}
+  .comparison{grid-template-columns:repeat(4,minmax(280px,84vw));gap:10px}
+  .review{padding:18px 4px}
+  .source{text-align:left;overflow-wrap:anywhere}
+}
+@media print{
+  main{width:100%;padding:12mm}
+  .comparison{grid-template-columns:repeat(4,1fr);gap:4mm;overflow:visible}
+  .season{min-width:0;break-inside:avoid}
+  .season-head{min-height:24mm;padding:4mm}
+  .guide::after{display:none}
+  .review{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="heading">
+      <h1>同一棵树，四个季节</h1>
+      <p class="intro">统一画布、统一缩放、统一根颈线。当前只审阅树形与四季视觉，不讨论分层、风效或生长动画。</p>
+    </div>
+    <div class="legend" aria-label="审稿状态说明">
+      <span class="status selected">已选择</span>
+      <span class="status pending">待确认</span>
+    </div>
+  </header>
+
+  <section class="comparison" aria-label="品牌樱花树四季静态对照">
+    <article class="season" data-state="selected">
+      <div class="season-head">
+        <div>
+          <h2 class="season-name">春</h2>
+          <p class="season-note">盛花期 · 饱满粉色花冠</p>
+        </div>
+        <span class="status selected">已确认 v6</span>
+      </div>
+      <div class="artboard">
+        <img src="assets/樱花树-春-v6.png" width="1122" height="1402" alt="春季樱花树：浅粉花团错落分布，增加树冠内层覆盖并弱化裸露的分叉枝桠">
+        <span class="guide guide-crown" aria-hidden="true"></span>
+        <span class="guide guide-ground" aria-hidden="true"></span>
+      </div>
+    </article>
+
+    <article class="season" data-state="selected">
+      <div class="season-head">
+        <div>
+          <h2 class="season-name">夏</h2>
+          <p class="season-note">深浅绿叶 · 层叠叶隙</p>
+        </div>
+        <span class="status selected">已确认 v2</span>
+      </div>
+      <div class="artboard">
+        <img src="assets/樱花树-夏-v2.png" width="1122" height="1402" alt="夏季樱花树：深浅绿色水彩叶团覆盖固定枝杈">
+        <span class="guide guide-crown" aria-hidden="true"></span>
+        <span class="guide guide-ground" aria-hidden="true"></span>
+      </div>
+    </article>
+
+    <article class="season" data-state="selected">
+      <div class="season-head">
+        <div>
+          <h2 class="season-name">秋</h2>
+          <p class="season-note">橙金综合色 · 饱满秋冠</p>
+        </div>
+        <span class="status selected">已确认 v3</span>
+      </div>
+      <div class="artboard">
+        <img src="assets/樱花树-秋-v3.png" width="1122" height="1402" alt="秋季樱花树：橙金综合色叶冠遮住大部分细枝">
+        <span class="guide guide-crown" aria-hidden="true"></span>
+        <span class="guide guide-ground" aria-hidden="true"></span>
+      </div>
+    </article>
+
+    <article class="season" data-state="selected">
+      <div class="season-head">
+        <div>
+          <h2 class="season-name">冬</h2>
+          <p class="season-note">完整裸枝 · 枝面薄雪 · 树麻雀</p>
+        </div>
+        <span class="status selected">已确认 v2</span>
+      </div>
+      <div class="artboard">
+        <img src="assets/樱花树-冬-v2.png" width="1122" height="1402" alt="冬季樱花树：固定裸枝的上表面覆盖薄雪，一只树麻雀停在靠近主干的枝条上">
+        <span class="guide guide-crown" aria-hidden="true"></span>
+        <span class="guide guide-ground" aria-hidden="true"></span>
+      </div>
+    </article>
+  </section>
+
+  <section class="review" aria-labelledby="review-title">
+    <div>
+      <h2 id="review-title">本轮只确认三件事</h2>
+      <p>四季视觉全部通过后，再进入像素锁定与 2.5D 分层。</p>
+    </div>
+    <ol class="checks">
+      <li>四季是否仍能读成同一棵树，主干与主要枝杈是否稳定。</li>
+      <li>春花、夏叶、秋叶与冬雪的密度是否形成明确季节差异。</li>
+      <li>树冠外轮廓是否完整、有生命力，并适合日光首屏构图。</li>
+    </ol>
+  </section>
+
+  <p class="source">固定骨架：<code>assets/樱花树枝干.png</code> · 当前夏季采用：<code>assets/樱花树-夏-v2.png</code></p>
+</main>
+</body>
+</html>

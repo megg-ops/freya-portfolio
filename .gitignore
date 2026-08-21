@@ -1,0 +1,7 @@
+.superpowers/
+.gstack/
+.env
+.env.local
+*:Zone.Identifier
+node_modules/
+dist/
