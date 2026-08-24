@@ -8,102 +8,138 @@ import styles from "./DaylightScene.module.css";
 
 const projects = [
   {
+    id: "p-solopr",
+    name: "SoloPR",
+    description: "一人公司 · 内容 Agent",
+    dateTime: "2026-07",
+    dateLabel: "2026 · 07",
+  },
+  {
     id: "p-chaiyu",
     name: "柴愈",
     description: "AI 情感陪伴",
-    top: "73%",
-  },
-  {
-    id: "p-solopr",
-    name: "SoloPR",
-    description: "一人公司 · 内容 agent",
-    top: "80%",
+    dateTime: "2026-05",
+    dateLabel: "2026 · 05",
   },
   {
     id: "p-paper",
     name: "empirical-paper",
     description: "实证论文写作流水线",
-    top: "87%",
+    dateTime: "2026-05",
+    dateLabel: "2026 · 05",
   },
   {
     id: "p-r2a",
     name: "Ready2Apply",
     description: "求职准备工作台",
-    top: "94%",
+    dateTime: "2026-04",
+    dateLabel: "2026 · 04",
   },
 ] as const;
 
-const nodules = [
-  { left: "20.54%", top: "95.93%" },
-  { left: "32.73%", top: "96.82%" },
-  { left: "71.21%", top: "92.15%" },
-  { left: "81.49%", top: "89.78%" },
-] as const;
+const overlayCopy = {
+  resume: {
+    title: "履历正在长成一圈年轮",
+    body: "完整履历会在下一阶段接入；当前先从四个项目入口查看这套能力根系。",
+  },
+  mailbox: {
+    title: "信箱还在接线",
+    body: "留言传递链路尚未确定，当前不会提交任何内容。入口准备好后会在这里开放。",
+  },
+} as const;
 
 export function DaylightScene() {
   const season = useSiteStore((state) => state.season);
+  const activeProject = useSiteStore((state) => state.activeProject);
+  const overlay = useSiteStore((state) => state.overlay);
+  const setActiveProject = useSiteStore((state) => state.setActiveProject);
+  const setOverlay = useSiteStore((state) => state.setOverlay);
   const springAssets = SEASON_ASSETS[ACTIVE_SEASON];
   const sceneRef = useRef<HTMLElement>(null);
+  const resumeButtonRef = useRef<HTMLButtonElement>(null);
+  const mailboxButtonRef = useRef<HTMLButtonElement>(null);
+
+  const closeOverlay = () => {
+    const returnFocus =
+      overlay === "mailbox" ? mailboxButtonRef.current : resumeButtonRef.current;
+    setOverlay(null);
+    requestAnimationFrame(() => returnFocus?.focus());
+  };
 
   useEffect(() => {
     document.documentElement.dataset.season = season;
   }, [season]);
+
+  useEffect(() => {
+    if (!overlay) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeOverlay();
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [overlay]);
+
+  const focusProjectRoots = () => {
+    const target = document.getElementById(activeProject ?? projects[0].id);
+    if (target instanceof HTMLButtonElement) target.focus();
+  };
 
   return (
     <main ref={sceneRef} className={styles.hero}>
       <div className={styles.sky} />
       <div className={styles.soil} />
 
-      <svg
-        className={styles.wash}
-        viewBox="0 0 1440 1000"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <defs>
-          <filter id="wcA" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.009 0.014"
-              numOctaves="5"
-              seed="4"
-              result="n"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="n"
-              scale="72"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-          <filter id="wcA2" x="-20%" y="-20%" width="140%" height="140%">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.016 0.011"
-              numOctaves="4"
-              seed="19"
-              result="n"
-            />
-            <feDisplacementMap
-              in="SourceGraphic"
-              in2="n"
-              scale="52"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-        <g filter="url(#wcA)" opacity=".5">
-          <ellipse cx="250" cy="200" rx="230" ry="150" fill="#CFE0B6" />
-          <ellipse cx="1080" cy="150" rx="300" ry="170" fill="#D9E7C4" />
-          <ellipse cx="700" cy="430" rx="340" ry="120" fill="#E3EDD2" />
-        </g>
-        <g filter="url(#wcA2)" opacity=".34">
-          <ellipse cx="430" cy="330" rx="200" ry="110" fill="#BFD5A2" />
-          <ellipse cx="1260" cy="380" rx="180" ry="120" fill="#CBDEAE" />
-        </g>
-      </svg>
+      <div className={styles.washClip} aria-hidden="true">
+        <svg
+          className={styles.wash}
+          viewBox="0 0 1440 1000"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <filter id="wcA" x="-20%" y="-20%" width="140%" height="140%">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.009 0.014"
+                numOctaves="5"
+                seed="4"
+                result="n"
+              />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="n"
+                scale="72"
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
+            <filter id="wcA2" x="-20%" y="-20%" width="140%" height="140%">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.016 0.011"
+                numOctaves="4"
+                seed="19"
+                result="n"
+              />
+              <feDisplacementMap
+                in="SourceGraphic"
+                in2="n"
+                scale="52"
+                xChannelSelector="R"
+                yChannelSelector="G"
+              />
+            </filter>
+          </defs>
+          <g filter="url(#wcA)" opacity=".5">
+            <ellipse cx="250" cy="200" rx="230" ry="150" fill="#CFE0B6" />
+            <ellipse cx="1080" cy="150" rx="300" ry="170" fill="#D9E7C4" />
+            <ellipse cx="700" cy="430" rx="340" ry="120" fill="#E3EDD2" />
+          </g>
+          <g filter="url(#wcA2)" opacity=".34">
+            <ellipse cx="430" cy="330" rx="200" ry="110" fill="#BFD5A2" />
+            <ellipse cx="1260" cy="380" rx="180" ry="120" fill="#CBDEAE" />
+          </g>
+        </svg>
+      </div>
 
       <svg
         className={styles.horizonLine}
@@ -131,37 +167,28 @@ export function DaylightScene() {
 
       <div className={styles.treeWrap}>
         <Tree layers={springAssets.treeLayers} parallaxTargetRef={sceneRef} />
+      </div>
 
-        <svg
-          className={styles.leaders}
-          viewBox="-78 0 178 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path d="M-8,73 C 0,73 8,84 20.5,95.9" />
-          <path d="M-8,80 C 2,80 16,88 32.7,96.8" />
-          <path d="M-8,87 C 14,87 44,90 71.2,92.2" />
-          <path d="M-8,94 C 18,94 52,92 81.5,89.8" />
-        </svg>
-
-        {nodules.map((position) => (
-          <div className={styles.nodule} style={position} key={position.left}>
-            <div className={styles.noduleBody} />
-          </div>
-        ))}
-
+      <nav id="projects" className={styles.projectRoots} aria-label="项目根系">
         {projects.map((project) => (
-          <a
+          <button
+            id={project.id}
             className={styles.note}
-            style={{ top: project.top }}
-            href={`#${project.id}`}
+            type="button"
             key={project.id}
+            aria-pressed={activeProject === project.id}
+            onClick={() =>
+              setActiveProject(activeProject === project.id ? null : project.id)
+            }
           >
             <span className={styles.noteName}>{project.name}</span>
+            <time className={styles.noteTime} dateTime={project.dateTime}>
+              {project.dateLabel}
+            </time>
             <span className={styles.noteDescription}>{project.description}</span>
-          </a>
+          </button>
         ))}
-      </div>
+      </nav>
 
       <div className={styles.figureShadow} />
       <img
@@ -171,6 +198,38 @@ export function DaylightScene() {
       />
       <Shiba />
 
+      <button
+        ref={mailboxButtonRef}
+        className={styles.mailboxEntry}
+        type="button"
+        aria-label={overlay === "mailbox" ? "收起来信入口" : "打开来信入口"}
+        aria-expanded={overlay === "mailbox"}
+        aria-controls={overlay === "mailbox" ? "daylight-overlay-note" : undefined}
+        onClick={() => setOverlay(overlay === "mailbox" ? null : "mailbox")}
+      >
+        <img
+          className={styles.mailboxImage}
+          src="/assets/ui/mailbox-entry.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <span className={styles.mailboxLabel}>给我来信</span>
+      </button>
+
+      {overlay ? (
+        <aside
+          id="daylight-overlay-note"
+          className={styles.overlayNotice}
+          aria-live="polite"
+        >
+          <strong>{overlayCopy[overlay].title}</strong>
+          <p>{overlayCopy[overlay].body}</p>
+          <button type="button" onClick={closeOverlay}>
+            收起
+          </button>
+        </aside>
+      ) : null}
+
       <div className={styles.copy}>
         <div className={styles.eyebrow}>Daylight · 生长</div>
         <h1 className={styles.name}>
@@ -179,29 +238,37 @@ export function DaylightScene() {
         <div className={styles.role}>AI 应用 / 大模型应用开发</div>
         <p className={styles.intro}>
           我把模糊的需求，种成<em>可以验证的东西</em>。<br />
-          四个项目从同一套根系长出来：<br />
-          问题在地下，作品在地上。
+          四个项目从同一套根系长出来。
         </p>
         <div className={styles.actions}>
-          <a className={styles.button} href="#projects">
+          <button className={styles.button} type="button" onClick={focusProjectRoots}>
             进入项目
-          </a>
-          <a className={`${styles.button} ${styles.ghost}`} href="#resume">
+          </button>
+          <button
+            ref={resumeButtonRef}
+            className={`${styles.button} ${styles.ghost}`}
+            type="button"
+            aria-expanded={overlay === "resume"}
+            aria-controls={overlay === "resume" ? "daylight-overlay-note" : undefined}
+            onClick={() => setOverlay(overlay === "resume" ? null : "resume")}
+          >
             查看履历
-          </a>
+          </button>
         </div>
       </div>
 
-      <div className={styles.depth}>
-        <b>地层 · 越深越早</b>
-        根系供给 → 树冠成形
-      </div>
-
-      <div className={styles.mode}>
+      <button
+        className={styles.mode}
+        type="button"
+        aria-label="当前为日光模式；星夜模式正在建设中"
+        aria-pressed="true"
+        aria-disabled="true"
+        title="星夜模式正在生长中"
+      >
         <span>日光</span>
-        <span className={styles.switch} />
+        <span className={styles.switch} aria-hidden="true" />
         <span className={styles.inactiveMode}>星夜</span>
-      </div>
+      </button>
 
       <svg
         className={styles.grain}

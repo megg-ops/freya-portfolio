@@ -264,7 +264,7 @@ export function Tree({ layers, parallaxTargetRef }: TreeProps) {
           data-tree-loader
         >
           <div className={styles.loadCard}>
-            <h2 className={styles.loadTitle}>先把每一层花瓣接住。</h2>
+            <h2 className={styles.loadTitle}>loading...</h2>
             <p className={styles.loadStatus}>
               {failedLoads > 0
                 ? `${failedLoads} 个图层加载失败，请检查本地资源路径。`

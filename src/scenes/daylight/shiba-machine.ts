@@ -17,6 +17,8 @@ export type ShibaAction =
   | "error"
   | "destroyed";
 
+export type ShibaCommand = "track" | "patrol" | "rest" | "recall";
+
 interface ShibaMachineOptions {
   canvas: HTMLCanvasElement;
   area: HTMLElement;
@@ -26,10 +28,12 @@ interface ShibaMachineOptions {
   images: ReadonlyMap<string, HTMLImageElement>;
   finePointer: boolean;
   reducedMotion: boolean;
+  onActionChange?: (action: ShibaAction) => void;
 }
 
 export interface ShibaMachine {
   start: () => void;
+  command: (command: ShibaCommand) => boolean;
   destroy: () => void;
 }
 
@@ -68,6 +72,7 @@ export function createShibaMachine({
   images,
   finePointer,
   reducedMotion,
+  onActionChange,
 }: ShibaMachineOptions): ShibaMachine {
   const context = canvas.getContext("2d");
   const pendingWaits = new Set<PendingWait>();
@@ -94,6 +99,7 @@ export function createShibaMachine({
     action = next;
     root.dataset.action = next;
     status.textContent = label;
+    onActionChange?.(next);
   };
 
   const setDogX = (next: number) => {
@@ -179,6 +185,24 @@ export function createShibaMachine({
     if (Math.abs(delta) > 0.04) scheduleGaze();
   }
 
+  const setReadyAtHome = (label?: string) => {
+    setDogX(0);
+    draw(images.get(SHIBA_SOURCES.stand));
+    gazePhase = 0;
+    gazeTarget = 0;
+    recallRequested = false;
+    lastMove = performance.now();
+    if (finePointer && !reducedMotion) {
+      setAction("tracking", label ?? ACTION_LABELS.tracking);
+      scheduleGaze();
+      return;
+    }
+    setAction(
+      "static",
+      reducedMotion ? "减少动态：保持静态站姿" : "触屏设备：保持轻量静态姿态",
+    );
+  };
+
   async function playFrames(
     list: readonly string[],
     {
@@ -220,12 +244,12 @@ export function createShibaMachine({
     return !destroyed && token === runToken;
   }
 
-  async function patrol() {
+  async function patrol(manual = false) {
     if (
       destroyed ||
       reducedMotion ||
-      !finePointer ||
-      !["tracking", "settling", "rest-ready"].includes(action)
+      (!finePointer && !manual) ||
+      !["static", "tracking", "settling"].includes(action)
     ) {
       return;
     }
@@ -249,23 +273,16 @@ export function createShibaMachine({
     setAction("walk-home");
     const cycles = Math.max(1, Math.round(dogX / 30));
     if (!(await playWalk(-1, cycles, token))) return;
-    setDogX(0);
-    draw(images.get(SHIBA_SOURCES.stand));
-    gazePhase = 0;
-    gazeTarget = 0;
-    recallRequested = false;
-    lastMove = performance.now();
     patrolUsed = true;
-    setAction("tracking", "回到人物身边 · 等待视线互动");
-    scheduleGaze();
+    setReadyAtHome("回到人物身边 · 等待视线互动");
   }
 
-  async function restDog() {
+  async function restDog(manual = false) {
     if (
       destroyed ||
       reducedMotion ||
-      !finePointer ||
-      !["tracking", "settling", "rest-ready"].includes(action)
+      (!finePointer && !manual) ||
+      !["static", "tracking", "settling"].includes(action)
     ) {
       return;
     }
@@ -299,11 +316,8 @@ export function createShibaMachine({
     if (!(await playFrames(SHIBA_SOURCES.lie, { reverse: true, fps: 12, token }))) {
       return;
     }
-    draw(images.get(SHIBA_SOURCES.stand));
-    lastMove = performance.now();
     patrolUsed = false;
-    setAction("tracking", "重新注意到鼠标 · 全局视线跟随");
-    scheduleGaze();
+    setReadyAtHome("重新注意到鼠标 · 全局视线跟随");
   }
 
   const updatePointer = (event: PointerEvent) => {
@@ -357,21 +371,74 @@ export function createShibaMachine({
     gazeTarget = 0;
     lastMove = performance.now();
     patrolUsed = false;
-    draw(images.get(SHIBA_SOURCES.stand));
     root.dataset.runtime = "active";
 
     if (!finePointer || reducedMotion) {
-      setAction(
-        "static",
-        reducedMotion ? "减少动态：保持静态站姿" : "触屏设备：保持轻量静态姿态",
-      );
+      setReadyAtHome();
       return;
     }
 
-    setAction("tracking");
+    setReadyAtHome();
     window.addEventListener("pointermove", updatePointer, { passive: true });
     pointerRegistered = true;
     monitorRaf = requestAnimationFrame(monitor);
+  };
+
+  const command = (requested: ShibaCommand) => {
+    if (destroyed) return false;
+    lastMove = performance.now();
+
+    if (reducedMotion && ["patrol", "rest"].includes(requested)) {
+      status.textContent = "减少动态模式下保持静态站姿";
+      return false;
+    }
+
+    if (requested === "recall" || requested === "track") {
+      if (action === "rest-breathe") {
+        void wakeUp();
+        return true;
+      }
+      if (["turn-away", "walk-away", "turn-home", "walk-home"].includes(action)) {
+        recallRequested = true;
+        status.textContent = "听见召唤，正在回到人物身边";
+        return true;
+      }
+      if (["static", "tracking", "settling"].includes(action)) {
+        setReadyAtHome(
+          requested === "track" ? "看向访问者 · 等待视线互动" : "已经回到人物身边",
+        );
+        return true;
+      }
+      status.textContent = "完成当前动作后即可回来";
+      return false;
+    }
+
+    if (requested === "patrol") {
+      if (action === "rest-breathe") {
+        void (async () => {
+          await wakeUp();
+          if (["static", "tracking", "settling"].includes(action)) await patrol(true);
+        })();
+        return true;
+      }
+      if (["static", "tracking", "settling"].includes(action)) {
+        void patrol(true);
+        return true;
+      }
+      status.textContent = "先让柴犬回到人物身边，再开始踱步";
+      return false;
+    }
+
+    if (action === "rest-breathe") {
+      status.textContent = "正在趴着呼吸";
+      return true;
+    }
+    if (["static", "tracking", "settling"].includes(action)) {
+      void restDog(true);
+      return true;
+    }
+    status.textContent = "先让柴犬回到人物身边，再选择趴下";
+    return false;
   };
 
   const destroy = () => {
@@ -388,5 +455,5 @@ export function createShibaMachine({
     setAction("destroyed");
   };
 
-  return { start, destroy };
+  return { start, command, destroy };
 }

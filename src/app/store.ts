@@ -11,6 +11,8 @@ interface SiteState {
   activeProject: string | null;
   overlay: Overlay;
   treePhase: TreePhase;
+  setActiveProject: (activeProject: string | null) => void;
+  setOverlay: (overlay: Overlay) => void;
   setTreePhase: (phase: TreePhase) => void;
 }
 
@@ -20,5 +22,7 @@ export const useSiteStore = create<SiteState>((set) => ({
   activeProject: null,
   overlay: null,
   treePhase: "loading",
+  setActiveProject: (activeProject) => set({ activeProject }),
+  setOverlay: (overlay) => set({ overlay }),
   setTreePhase: (treePhase) => set({ treePhase }),
 }));

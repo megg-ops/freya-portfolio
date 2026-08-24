@@ -2,10 +2,10 @@
   --dog-x: 0px;
 
   position: absolute;
-  top: var(--horizon);
-  left: 53%;
-  z-index: 4;
-  width: clamp(168px, 14vw, 214px);
+  top: calc(var(--horizon) + 70px + var(--foreground-shift-y));
+  left: calc(50% + var(--foreground-shift-x));
+  z-index: 6;
+  width: clamp(144px, 12.04vw, 184px);
   aspect-ratio: 1;
   transform: translate(-50%, -89%);
 }
@@ -17,38 +17,216 @@
   will-change: transform;
 }
 
-.link {
+.trigger {
   position: absolute;
   inset: 0;
+  z-index: 1;
   padding: 0;
   color: inherit;
-  text-decoration: none;
   background: none;
   border: 0;
   border-radius: 12px;
   cursor: pointer;
 }
 
-.link:focus-visible {
+.trigger:focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 6px;
 }
 
+.trigger:disabled {
+  cursor: wait;
+}
+
+.placeholder,
 .canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 8px 8px rgb(75 70 52 / 14%));
 }
 
+.placeholder {
+  object-fit: contain;
+  opacity: 1;
+  transition: opacity 0.12s ease-out;
+}
+
+.canvas {
+  opacity: 0;
+  transition: opacity 0.12s ease-out;
+}
+
+.shiba[data-load-state="ready"] .placeholder {
+  opacity: 0;
+}
+
+.shiba[data-load-state="ready"] .canvas {
+  opacity: 1;
+}
+
 .shadow {
   position: absolute;
-  bottom: 6%;
+  bottom: 7%;
   left: 50%;
-  width: 64%;
+  width: 62%;
   height: 10%;
   pointer-events: none;
-  background: radial-gradient(ellipse, rgb(82 72 50 / 25%), transparent 70%);
+  background: radial-gradient(ellipse, rgb(66 56 40 / 40%), transparent 70%);
+  filter: blur(2px);
   transform: translateX(-50%);
+}
+
+.commandHalo {
+  position: absolute;
+  bottom: 64%;
+  left: 50%;
+  z-index: 2;
+  width: clamp(230px, 22vw, 300px);
+  height: clamp(132px, 12vw, 164px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-50%) translateY(14px) scale(0.9);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 0.24s ease-out,
+    transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.commandHaloOpen {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.command {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  place-content: center;
+  gap: 1px;
+  width: 54px;
+  height: 54px;
+  padding: 4px;
+  color: #65492f;
+  font: 600 10px/1.05 inherit;
+  text-align: center;
+  background: #f4dca2;
+  border: 1px solid #8a6847;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgb(91 67 43 / 16%);
+  cursor: pointer;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(12px) scale(0.84);
+  transition:
+    color 0.18s ease-out,
+    background 0.18s ease-out,
+    opacity 0.18s ease-out,
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.commandHaloOpen .command {
+  pointer-events: auto;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.command:hover,
+.command:focus-visible,
+.command[aria-pressed="true"] {
+  color: #fdfbf5;
+  background: #6b8958;
+  outline: none;
+}
+
+.command:focus-visible {
+  box-shadow: 0 0 0 3px rgb(247 244 236 / 88%);
+}
+
+.command:disabled {
+  color: #8c816e;
+  cursor: not-allowed;
+  background: #e8dfcc;
+  border-color: #b3a58d;
+  box-shadow: none;
+  opacity: 0.72;
+}
+
+.commandtrack {
+  bottom: 0;
+  left: 0;
+}
+
+.commandpatrol {
+  top: 0;
+  left: 20%;
+}
+
+.commandrecall {
+  top: 0;
+  right: 20%;
+}
+
+.commandrest {
+  right: 0;
+  bottom: 0;
+}
+
+.commandGlyph {
+  display: block;
+  font: 700 17px/0.9 ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.gazeActive {
+  cursor: none;
+}
+
+.gazeActive a,
+.gazeActive button {
+  cursor: pointer;
+}
+
+.gazeActive [data-shiba-trigger] {
+  cursor: none;
+}
+
+.gazeCursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  display: block;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 2px 2px rgb(93 76 48 / 24%));
+  transition: opacity 0.12s ease-out;
+  will-change: transform;
+}
+
+.gazeCursor[data-visible="true"] {
+  opacity: 1;
+}
+
+.gazeCursorBody {
+  position: absolute;
+  inset: 0;
+  background: url("/assets/ui/butterfly-cursor.png") center / contain no-repeat;
+  transform-origin: 50% 55%;
+  animation: butterfly-flutter 0.72s ease-in-out infinite alternate;
+}
+
+@keyframes butterfly-flutter {
+  from {
+    transform: translateY(1px) rotate(-5deg) scale(0.94);
+  }
+
+  to {
+    transform: translateY(-1px) rotate(5deg) scale(1);
+  }
 }
 
 .status {
@@ -83,13 +261,49 @@
 
 @media (max-width: 760px) {
   .shiba {
-    left: 47%;
-    width: 132px;
+    top: calc(var(--horizon) + 56px);
+    left: 44%;
+    width: 98px;
+  }
+
+  .commandHalo {
+    bottom: 64%;
+    width: 230px;
+    height: 132px;
+  }
+
+  .command {
+    width: 46px;
+    height: 46px;
+    font-size: 9px;
+  }
+
+  .commandGlyph {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1024px) {
+  .shiba {
+    left: 68%;
+    width: 130px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .motion {
     will-change: auto;
+  }
+
+  .placeholder,
+  .canvas,
+  .commandHalo,
+  .command,
+  .gazeCursor {
+    transition: none;
+  }
+
+  .gazeCursor {
+    display: none;
   }
 }

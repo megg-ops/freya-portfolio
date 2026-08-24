@@ -21,7 +21,7 @@ export const SEASON_ASSETS = {
   spring: {
     status: "ready",
     daylightShell: {
-      figure: "/assets/freya-spring-cutout.png",
+      figure: "/assets/freya-spring-cutout-clean.png",
     },
     treeLayers: [
       "/assets/tree/spring/02-layer.png",
