@@ -9,12 +9,18 @@
   --green-light: #8cac69;
   --clay: #b8734a;
   --horizon: 58%;
-  --tree-height: 820px;
+  /* 树冠不能被视口顶边切掉。舞台还带 scale(1.02)、原点 68.93%，会再向上撑
+     0.02 × 0.6893 × tree-height，所以约束是
+     tree-height × 0.6893 × 1.02 + 12 ≤ 58vh，解出 tree-height ≤ 82.49vh − 17.1。
+     取 82vh − 24px 留余量。视口高 ≳ 1030px 时 min() 取 820px，既有构图不变。 */
+  --tree-height: min(820px, calc(82vh - 24px));
   --tree-base: 0.6893;
   --tree-aspect-ratio: 0.6088;
   --tree-scene-scale: 1.02;
   --character-scale: 0.97;
-  --foreground-shift-x: clamp(-152px, -7vw, -96px);
+  /* 正值把人物与柴犬推离左侧文案栏（.figure / .figureShadow / .shiba 共用）。
+     曾经是负值，在宽而矮的视口下会把人物拽进文案里挡住正文。 */
+  --foreground-shift-x: clamp(24px, 4vw, 88px);
   --foreground-shift-y: 52px;
 
   position: relative;
@@ -89,7 +95,8 @@
 .treeWrap {
   position: absolute;
   top: calc(var(--horizon) - var(--tree-height) * var(--tree-base) - 12px);
-  left: 57%;
+  /* 人物与柴犬右移后，树也要跟着右移，否则柴犬会挡在树干前面。 */
+  left: 63%;
   z-index: 2;
   width: calc(var(--tree-height) * var(--tree-aspect-ratio));
   height: var(--tree-height);
@@ -132,7 +139,7 @@
   top: 14%;
   left: 6.5%;
   z-index: 4;
-  width: min(42ch, 32%);
+  width: min(40ch, 30%);
 }
 
 .eyebrow {
@@ -323,7 +330,8 @@
   display: grid;
   gap: 4px;
   justify-items: center;
-  width: clamp(184px, 16vw, 248px);
+  /* 原来 16vw 让信箱换算后高约 354px，几乎与人物（383px）齐高。 */
+  width: clamp(112px, 8.5vw, 156px);
   padding: 0;
   color: #695741;
   text-decoration: none;
