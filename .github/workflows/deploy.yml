@@ -25,8 +25,12 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
-      # build 已包含 typecheck 与 dist/404.html 生成
+      # build 已包含 typecheck 与 dist/404.html 生成。
+      # 默认按 GitHub Pages 子路径 /freya-portfolio/ 构建；绑定自定义域后
+      # 把仓库变量 BASE_PATH 设为 / 即可切回根路径。
       - run: npm run build
+        env:
+          BASE_PATH: ${{ vars.BASE_PATH || '/freya-portfolio/' }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

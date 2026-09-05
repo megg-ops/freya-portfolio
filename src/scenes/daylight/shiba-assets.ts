@@ -1,3 +1,5 @@
+import { asset } from "../../lib/asset";
+
 export type ShibaAssetGroup =
   | "stand"
   | "look"
@@ -11,11 +13,11 @@ const framePaths = (folder: string, count: number) =>
   Array.from(
     { length: count },
     (_, index) =>
-      `/assets/shiba/${folder}/frame-${String(index + 1).padStart(2, "0")}.webp`,
+      asset(`/assets/shiba/${folder}/frame-${String(index + 1).padStart(2, "0")}.webp`),
   );
 
 export const SHIBA_SOURCES = {
-  stand: "/assets/shiba/stand-left.webp",
+  stand: asset("/assets/shiba/stand-left.webp"),
   look: framePaths("look", 33),
   turn: framePaths("turn", 18),
   walk: framePaths("walk", 12),

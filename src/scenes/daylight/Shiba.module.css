@@ -214,7 +214,7 @@
 .gazeCursorBody {
   position: absolute;
   inset: 0;
-  background: url("/assets/ui/butterfly-cursor.png") center / contain no-repeat;
+  background: var(--butterfly-cursor) center / contain no-repeat;
   transform-origin: 50% 55%;
   animation: butterfly-flutter 0.72s ease-in-out infinite alternate;
 }

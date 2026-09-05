@@ -7,6 +7,8 @@
  * 每个项目的 `boundaries` 是对外明示的能力边界，不得为了好看删改。
  */
 
+import { asset } from "../lib/asset";
+
 export interface ProjectEvidence {
   /** 展示文案 */
   label: string;
@@ -100,7 +102,7 @@ export const PROJECTS: readonly Project[] = [
       },
     ],
     cover: {
-      src: "/assets/projects/empirical-paper-cover.webp",
+      src: asset("/assets/projects/empirical-paper-cover.webp"),
       alt: "empirical-paper 封面：检验台上的表格纸张、确认压章与上锁的证据柜",
     },
   },

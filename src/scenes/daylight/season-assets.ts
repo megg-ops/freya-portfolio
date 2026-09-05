@@ -1,4 +1,5 @@
 import type { Season } from "../../app/store";
+import { asset } from "../../lib/asset";
 
 export const ACTIVE_SEASON = "spring" satisfies Season;
 
@@ -21,15 +22,15 @@ export const SEASON_ASSETS = {
   spring: {
     status: "ready",
     daylightShell: {
-      figure: "/assets/freya-spring-cutout-clean.webp",
+      figure: asset("/assets/freya-spring-cutout-clean.webp"),
     },
     treeLayers: [
-      "/assets/tree/spring/02-layer.webp",
-      "/assets/tree/spring/03-layer.webp",
-      "/assets/tree/spring/04-layer.webp",
-      "/assets/tree/spring/05-layer.webp",
-      "/assets/tree/spring/06-layer.webp",
-      "/assets/tree/spring/07-layer.webp",
+      asset("/assets/tree/spring/02-layer.webp"),
+      asset("/assets/tree/spring/03-layer.webp"),
+      asset("/assets/tree/spring/04-layer.webp"),
+      asset("/assets/tree/spring/05-layer.webp"),
+      asset("/assets/tree/spring/06-layer.webp"),
+      asset("/assets/tree/spring/07-layer.webp"),
     ],
   },
   summer: {

@@ -4,6 +4,7 @@ import { Link, useMatch, useNavigate } from "react-router-dom";
 import { useSiteStore } from "../../app/store";
 import { ProjectDialog } from "../../components/ProjectDialog";
 import { PROJECTS, PROJECT_MAP } from "../../content/projects";
+import { asset } from "../../lib/asset";
 import { NotFoundPage } from "../../pages/NotFoundPage";
 import { ACTIVE_SEASON, SEASON_ASSETS } from "./season-assets";
 import { Shiba } from "./Shiba";
@@ -171,7 +172,7 @@ export function DaylightScene() {
       >
         <img
           className={styles.mailboxImage}
-          src="/assets/ui/mailbox-entry.png"
+          src={asset("/assets/ui/mailbox-entry.png")}
           alt=""
           aria-hidden="true"
         />
