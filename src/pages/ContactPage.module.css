@@ -1,0 +1,129 @@
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.primary,
+.secondary {
+  padding: 26px 28px;
+  background: rgb(255 255 255 / 66%);
+  border: 1px solid rgb(95 130 80 / 22%);
+  border-radius: 10px;
+}
+
+.primary {
+  background: rgb(95 130 80 / 9%);
+  border-color: rgb(95 130 80 / 30%);
+}
+
+.blockTitle {
+  margin: 0 0 18px;
+  color: #4f7344;
+  font: 500 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.2em;
+}
+
+.address {
+  margin: 0 0 22px;
+  color: #3f4a38;
+  font: 400 clamp(17px, 2.6vw, 22px)/1.5 ui-monospace, "SF Mono", Menlo, Consolas,
+    monospace;
+  letter-spacing: 0.03em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.button,
+.ghost {
+  padding: 12px 20px;
+  font: 400 14.5px/1 inherit;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.button {
+  color: #fbfbf6;
+  background: var(--color-green);
+  border: 1px solid var(--color-green);
+  box-shadow: 0 2px 0 rgb(60 85 48 / 50%);
+}
+
+.button:hover {
+  box-shadow: 0 4px 0 rgb(60 85 48 / 40%);
+}
+
+.ghost {
+  color: #4f7344;
+  background: rgb(255 255 255 / 72%);
+  border: 1px solid rgb(79 115 68 / 62%);
+}
+
+.ghost:hover {
+  background: #fff;
+}
+
+.status {
+  min-height: 1.7em;
+  margin: 14px 0 0;
+  color: #4f7344;
+  font-size: 13.5px;
+  line-height: 1.7;
+  letter-spacing: 0.03em;
+}
+
+.hint {
+  margin: 14px 0 0;
+  color: #7a7365;
+  font-size: 13.5px;
+  line-height: 1.9;
+  letter-spacing: 0.03em;
+  text-wrap: pretty;
+}
+
+.links {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.links a {
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+  text-underline-offset: 4px;
+}
+
+.links a:hover {
+  color: var(--color-clay);
+}
+
+.linkHint {
+  color: #8b8574;
+  font-size: 12px;
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .primary,
+  .secondary {
+    padding: 22px 20px;
+  }
+}

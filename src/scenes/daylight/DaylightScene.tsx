@@ -1,88 +1,56 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { Link, useMatch, useNavigate } from "react-router-dom";
 
 import { useSiteStore } from "../../app/store";
+import { ProjectDialog } from "../../components/ProjectDialog";
+import { PROJECTS, PROJECT_MAP } from "../../content/projects";
+import { NotFoundPage } from "../../pages/NotFoundPage";
 import { ACTIVE_SEASON, SEASON_ASSETS } from "./season-assets";
 import { Shiba } from "./Shiba";
 import { Tree } from "./Tree";
 import styles from "./DaylightScene.module.css";
 
-const projects = [
-  {
-    id: "p-solopr",
-    name: "SoloPR",
-    description: "一人公司 · 内容 Agent",
-    dateTime: "2026-07",
-    dateLabel: "2026 · 07",
-  },
-  {
-    id: "p-chaiyu",
-    name: "柴愈",
-    description: "AI 情感陪伴",
-    dateTime: "2026-05",
-    dateLabel: "2026 · 05",
-  },
-  {
-    id: "p-paper",
-    name: "empirical-paper",
-    description: "实证论文写作流水线",
-    dateTime: "2026-05",
-    dateLabel: "2026 · 05",
-  },
-  {
-    id: "p-r2a",
-    name: "Ready2Apply",
-    description: "求职准备工作台",
-    dateTime: "2026-04",
-    dateLabel: "2026 · 04",
-  },
-] as const;
-
-const overlayCopy = {
-  resume: {
-    title: "履历正在长成一圈年轮",
-    body: "完整履历会在下一阶段接入；当前先从四个项目入口查看这套能力根系。",
-  },
-  mailbox: {
-    title: "信箱还在接线",
-    body: "留言传递链路尚未确定，当前不会提交任何内容。入口准备好后会在这里开放。",
-  },
-} as const;
-
 export function DaylightScene() {
   const season = useSiteStore((state) => state.season);
-  const activeProject = useSiteStore((state) => state.activeProject);
-  const overlay = useSiteStore((state) => state.overlay);
-  const setActiveProject = useSiteStore((state) => state.setActiveProject);
-  const setOverlay = useSiteStore((state) => state.setOverlay);
   const springAssets = SEASON_ASSETS[ACTIVE_SEASON];
   const sceneRef = useRef<HTMLElement>(null);
-  const resumeButtonRef = useRef<HTMLButtonElement>(null);
-  const mailboxButtonRef = useRef<HTMLButtonElement>(null);
-
-  const closeOverlay = () => {
-    const returnFocus =
-      overlay === "mailbox" ? mailboxButtonRef.current : resumeButtonRef.current;
-    setOverlay(null);
-    requestAnimationFrame(() => returnFocus?.focus());
-  };
+  const navigate = useNavigate();
+  // 布局路由拿不到子路由参数，用 useMatch 直接读当前地址。
+  const projectMatch = useMatch("/projects/:projectId");
+  const projectId = projectMatch?.params.projectId;
+  const activeProject = projectId ? PROJECT_MAP.get(projectId) : undefined;
+  const unknownProject = Boolean(projectId) && !activeProject;
 
   useEffect(() => {
     document.documentElement.dataset.season = season;
   }, [season]);
 
+  /**
+   * 关闭详情后把焦点还给对应的根系入口，键盘用户不会掉回页面顶部。
+   * 焦点要等弹层真正卸载后再移交，所以记在 ref 里由 effect 执行，
+   * 而不是在 navigate 之后直接 rAF——那样会和 React 的提交时机赛跑。
+   */
+  const pendingFocusRef = useRef<string | null>(null);
+
+  const closeProject = useCallback(() => {
+    pendingFocusRef.current = projectId ?? null;
+    navigate("/");
+  }, [navigate, projectId]);
+
   useEffect(() => {
-    if (!overlay) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeOverlay();
-    };
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [overlay]);
+    if (activeProject) return;
+    const target = pendingFocusRef.current;
+    if (!target) return;
+    pendingFocusRef.current = null;
+    document.getElementById(target)?.focus();
+  }, [activeProject]);
 
   const focusProjectRoots = () => {
-    const target = document.getElementById(activeProject ?? projects[0].id);
-    if (target instanceof HTMLButtonElement) target.focus();
+    const target = document.getElementById(projectId ?? PROJECTS[0].id);
+    if (target instanceof HTMLElement) target.focus();
   };
+
+  if (unknownProject) return <NotFoundPage />;
 
   return (
     <main ref={sceneRef} className={styles.hero}>
@@ -170,23 +138,21 @@ export function DaylightScene() {
       </div>
 
       <nav id="projects" className={styles.projectRoots} aria-label="项目根系">
-        {projects.map((project) => (
-          <button
+        {PROJECTS.map((project) => (
+          <Link
             id={project.id}
             className={styles.note}
-            type="button"
             key={project.id}
-            aria-pressed={activeProject === project.id}
-            onClick={() =>
-              setActiveProject(activeProject === project.id ? null : project.id)
-            }
+            to={`/projects/${project.id}`}
+            data-highlight={project.highlight ? "true" : undefined}
+            aria-current={projectId === project.id ? "page" : undefined}
           >
             <span className={styles.noteName}>{project.name}</span>
             <time className={styles.noteTime} dateTime={project.dateTime}>
               {project.dateLabel}
             </time>
-            <span className={styles.noteDescription}>{project.description}</span>
-          </button>
+            <span className={styles.noteDescription}>{project.tagline}</span>
+          </Link>
         ))}
       </nav>
 
@@ -198,14 +164,10 @@ export function DaylightScene() {
       />
       <Shiba />
 
-      <button
-        ref={mailboxButtonRef}
+      <Link
         className={styles.mailboxEntry}
-        type="button"
-        aria-label={overlay === "mailbox" ? "收起来信入口" : "打开来信入口"}
-        aria-expanded={overlay === "mailbox"}
-        aria-controls={overlay === "mailbox" ? "daylight-overlay-note" : undefined}
-        onClick={() => setOverlay(overlay === "mailbox" ? null : "mailbox")}
+        to="/contact"
+        aria-label="联系方式：给我来信"
       >
         <img
           className={styles.mailboxImage}
@@ -214,21 +176,7 @@ export function DaylightScene() {
           aria-hidden="true"
         />
         <span className={styles.mailboxLabel}>给我来信</span>
-      </button>
-
-      {overlay ? (
-        <aside
-          id="daylight-overlay-note"
-          className={styles.overlayNotice}
-          aria-live="polite"
-        >
-          <strong>{overlayCopy[overlay].title}</strong>
-          <p>{overlayCopy[overlay].body}</p>
-          <button type="button" onClick={closeOverlay}>
-            收起
-          </button>
-        </aside>
-      ) : null}
+      </Link>
 
       <div className={styles.copy}>
         <div className={styles.eyebrow}>Daylight · 生长</div>
@@ -238,22 +186,15 @@ export function DaylightScene() {
         <div className={styles.role}>AI 应用 / 大模型应用开发</div>
         <p className={styles.intro}>
           我把模糊的需求，种成<em>可以验证的东西</em>。<br />
-          四个项目从同一套根系长出来。
+          七个项目从同一套根系长出来，按时间从左往右。
         </p>
         <div className={styles.actions}>
           <button className={styles.button} type="button" onClick={focusProjectRoots}>
             进入项目
           </button>
-          <button
-            ref={resumeButtonRef}
-            className={`${styles.button} ${styles.ghost}`}
-            type="button"
-            aria-expanded={overlay === "resume"}
-            aria-controls={overlay === "resume" ? "daylight-overlay-note" : undefined}
-            onClick={() => setOverlay(overlay === "resume" ? null : "resume")}
-          >
+          <Link className={`${styles.button} ${styles.ghost}`} to="/resume">
             查看履历
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -290,6 +231,10 @@ export function DaylightScene() {
         </filter>
         <rect width="1440" height="1000" filter="url(#grainA)" />
       </svg>
+
+      {activeProject ? (
+        <ProjectDialog project={activeProject} onClose={closeProject} />
+      ) : null}
     </main>
   );
 }
