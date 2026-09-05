@@ -7,7 +7,11 @@
     "dev": "vite",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build && node scripts/postbuild.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "qa": "node scripts/qa/suite-daylight.mjs",
+    "qa:layout": "node scripts/qa/suite-layout.mjs",
+    "qa:subpath": "node scripts/qa/suite-subpath.mjs",
+    "qa:perf": "node scripts/qa/perf.mjs"
   },
   "dependencies": {
     "gsap": "3.15.0",
