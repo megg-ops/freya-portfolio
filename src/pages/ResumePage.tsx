@@ -76,6 +76,19 @@ export function ResumePage() {
           data-opened={stage === "opened" ? "true" : undefined}
           aria-label={`${PROFILE.name} 的一页履历`}
         >
+          {/* 封面：折叠时盖在中缝那一栏上。三折宣传册本来就是外面印封面、
+              里面是内页，所以折叠态与展开态内容不同不是作弊。 */}
+          <div className={styles.cover} aria-hidden={stage === "opened"}>
+            <p className={styles.coverEyebrow}>Résumé</p>
+            <p className={styles.coverName}>
+              {PROFILE.name}
+              <span className={styles.dot}>.</span>
+            </p>
+            <p className={styles.coverRole}>{PROFILE.role}</p>
+            <span className={styles.coverRule} aria-hidden="true" />
+            <p className={styles.coverStatus}>{PROFILE.status}</p>
+          </div>
+
           {/* 左翼 */}
           <section className={`${styles.panel} ${styles.wingLeft}`}>
             <div className={styles.panelInner}>

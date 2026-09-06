@@ -234,18 +234,12 @@ export function DaylightScene() {
         </div>
       </div>
 
-      <button
-        className={styles.mode}
-        type="button"
-        aria-label="当前为日光模式；星夜模式正在建设中"
-        aria-pressed="true"
-        aria-disabled="true"
-        title="星夜模式正在生长中"
-      >
+      {/* 星夜模式的实现全部在 src/scenes/starnight/ 内，这里只是入口 */}
+      <Link className={styles.mode} to="/stars" aria-label="切换到星夜模式">
         <span>日光</span>
         <span className={styles.switch} aria-hidden="true" />
         <span className={styles.inactiveMode}>星夜</span>
-      </button>
+      </Link>
 
       <svg
         className={styles.grain}

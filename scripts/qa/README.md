@@ -51,6 +51,7 @@ npm run qa:subpath
 | `QA_CHROME` | 自动在 `~/.cache/ms-playwright` 里找最新的 `chrome-headless-shell` | 手动指定浏览器 |
 | `QA_SHOTS` | `<website>/.qa-shots`（已 gitignore） | 截图输出目录 |
 | `QA_SUBPATH_BASE` | `http://127.0.0.1:4320/freya-portfolio` | 子路径验收地址 |
+| `QA_PORT_OFFSET` | `0` | CDP 调试端口整体偏移。并行会话（另一个 worktree 里的 agent 同时跑 QA）会撞 9333–9338，设成 `100` 之类即可错开 |
 
 ## 收尾
 

@@ -280,6 +280,36 @@ const OVERFLOW = `(() => ({
   await page.close();
 }
 
+// ---------- 6.5 星夜接缝 ----------
+// 星夜模式本身由另一条线并行实现，这里只锁住接缝：路由通、切换可双向、
+// 与日光共用同一份项目数据。接缝坏了要在这里就被发现，而不是等合并时。
+{
+  const page = await newPage();
+  await goto(page, "/");
+  const toggle = await evalJs(page, `(() => {
+    const el = document.querySelector('a[href="/stars"]');
+    return { exists: !!el, label: el?.getAttribute('aria-label') };
+  })()`);
+  record("首屏有通往星夜的入口", toggle.exists === true, toggle.label ?? "");
+
+  await goto(page, "/stars");
+  const stars = await evalJs(page, `(() => ({
+    heading: document.querySelector('h1')?.textContent.trim(),
+    world: document.documentElement.dataset.world,
+    projects: document.querySelectorAll('a[href^="/projects/"]').length,
+    back: !!document.querySelector('a[href="/"]'),
+  }))()`);
+  record("/stars 深链接可直接打开", !!stars.heading, stars.heading);
+  record("星夜标记 data-world=stars", stars.world === "stars", "world=" + stars.world);
+  record("星夜与日光共用同一份项目数据", stars.projects === 7, "count=" + stars.projects);
+  record("星夜可回到日光", stars.back === true);
+  const of = await evalJs(page, OVERFLOW);
+  record("星夜 1440：无横向溢出", of.h <= 0, `h=${of.h}`);
+  record("星夜无 console/page 错误", page.errors.length === 0, page.errors.join(" | "));
+  await shot(page, "13-starnight-1440");
+  await page.close();
+}
+
 // ---------- 7. 未知路由 ----------
 {
   const page = await newPage();

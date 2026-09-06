@@ -392,7 +392,12 @@
   border: 1px solid rgb(95 130 80 / 24%);
   border-radius: 999px;
   box-shadow: 0 2px 7px rgb(77 92 67 / 10%);
-  cursor: not-allowed;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.mode:hover {
+  background: rgb(255 255 255 / 82%);
 }
 
 .switch {

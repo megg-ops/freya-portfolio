@@ -4,6 +4,7 @@ import { ContactPage } from "../pages/ContactPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { ResumePage } from "../pages/ResumePage";
 import { DaylightScene } from "../scenes/daylight/DaylightScene";
+import { StarnightScene } from "../scenes/starnight/StarnightScene";
 
 /**
  * 项目详情是叠在日光首屏之上的弹层，所以 `/` 和 `/projects/:id` 必须共用
@@ -17,6 +18,7 @@ export function App() {
         <Route index element={null} />
         <Route path="projects/:projectId" element={null} />
       </Route>
+      <Route path="/stars" element={<StarnightScene />} />
       <Route path="/resume" element={<ResumePage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="*" element={<NotFoundPage />} />

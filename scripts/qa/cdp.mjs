@@ -43,6 +43,9 @@ function findChrome() {
 }
 
 export async function launch(port = 9333) {
+  // 并行会话（比如另一个 worktree 里的 agent 同时跑 QA）会撞端口，
+  // 用 QA_PORT_OFFSET 整体挪开即可。
+  port += Number(process.env.QA_PORT_OFFSET ?? 0);
   const bin = findChrome();
   if (!bin) {
     throw new Error(

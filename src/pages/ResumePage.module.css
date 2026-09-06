@@ -62,6 +62,7 @@
      ——要滚动才能看完的话，「一页纸」就不成立了。 */
   --sheet-h: min(calc(100vh - 260px), 834px);
 
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   height: var(--sheet-h);
@@ -97,6 +98,83 @@
   /* 曲线要匀一点：过于 ease-out 的话前 1/3 就转完了，看不出是在「翻折」 */
   transition: transform 1.05s cubic-bezier(0.42, 0.04, 0.24, 1);
   backface-visibility: hidden;
+}
+
+/* 封面：只盖住中缝那一栏（中间三分之一），展开时向上揭走 */
+.cover {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 33.3333%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: 33.3333%;
+  padding: clamp(18px, 2.1vw, 30px);
+  background-image: url("/assets/paper-sheet.webp");
+  background-position: center center;
+  background-size: 300% 100%;
+  background-color: #fbf9f2;
+  /* preserve-3d 上下文里 z-index 不像平面布局那样可靠，靠 Z 位移拉开层次 */
+  transform: translateZ(8px);
+  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sheet[data-opened] .cover {
+  opacity: 0;
+  transform: translateZ(8px) translateY(-14px);
+  pointer-events: none;
+}
+
+/* 合拢时内页本来就不该看得见。这既是物理事实，也免得去跟 3D 层序较劲
+   ——光靠 z-index 压不住，中缝的内容会从封面底下透出来。 */
+.spine .panelInner {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.sheet[data-opened] .spine .panelInner {
+  opacity: 1;
+  transition-delay: 0.25s;
+}
+
+.coverEyebrow {
+  margin: 0 0 auto;
+  color: #4f7344;
+  font: 500 10.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.coverName {
+  margin: 0 0 6px;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1;
+  letter-spacing: 0.035em;
+}
+
+.coverRole {
+  margin: 0 0 16px;
+  color: #6b7263;
+  font: 400 11.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.12em;
+}
+
+.coverRule {
+  width: 42px;
+  height: 1px;
+  margin-bottom: 16px;
+  background: var(--color-clay);
+  opacity: 0.7;
+}
+
+.coverStatus {
+  margin: 0 0 auto;
+  color: #8b725b;
+  font: 400 11px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.08em;
 }
 
 /* 折边：两翼绕各自靠中缝的一侧转开 */
@@ -399,6 +477,15 @@
   .sheet[data-opened] .wingLeft,
   .sheet[data-opened] .wingRight {
     transform: none;
+  }
+
+  /* 堆叠布局里没有「中缝」，封面无处可盖；内页必须无条件可见 */
+  .cover {
+    display: none;
+  }
+
+  .spine .panelInner {
+    opacity: 1;
   }
 
   /* 堆叠后各面板宽度一致，横切三分之一没有意义，各自铺满即可 */
