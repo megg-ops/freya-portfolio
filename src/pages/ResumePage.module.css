@@ -1,205 +1,256 @@
-.status {
-  margin: -22px 0 clamp(40px, 7vh, 64px);
-  color: #7a6d59;
-  font: 400 13px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+.page {
+  min-height: 100vh;
+  padding: clamp(20px, 4vh, 40px) clamp(16px, 3vw, 40px) clamp(40px, 8vh, 72px);
+  color: #3c4136;
+  background:
+    radial-gradient(90% 46% at 16% 0%, #fdfcf6 0%, rgb(253 252 246 / 0%) 62%),
+    radial-gradient(70% 40% at 86% 6%, rgb(200 220 180 / 30%) 0%, rgb(200 220 180 / 0%) 64%),
+    var(--color-paper);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1180px;
+  margin: 0 auto clamp(18px, 4vh, 36px);
+}
+
+.back,
+.refold {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+}
+
+.back {
+  color: #5f8250;
+}
+
+.back:hover {
+  color: var(--color-clay);
+}
+
+.refold {
+  padding: 8px 14px;
+  color: #4f7344;
+  cursor: pointer;
+  background: rgb(255 255 255 / 72%);
+  border: 1px solid rgb(79 115 68 / 46%);
+  border-radius: 2px;
+}
+
+.refold:hover {
+  background: #fff;
+}
+
+/* ---- 三折纸 ---- */
+
+.stage {
+  /* 透视放在舞台上，两翼共用同一个灭点，折页才像同一张纸 */
+  perspective: 2600px;
+  perspective-origin: 50% 42%;
+}
+
+.sheet {
+  /* A4 横向三折：297 × 210。高度先跟视口走再反推宽度，保证整张纸一屏装得下
+     ——要滚动才能看完的话，「一页纸」就不成立了。 */
+  --sheet-h: min(calc(100vh - 260px), 834px);
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: var(--sheet-h);
+  width: min(1180px, 100%, calc(var(--sheet-h) * 1.414));
+  margin: 0 auto;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s ease;
+  transform: translateY(14px);
+  filter: drop-shadow(0 10px 18px rgb(70 76 58 / 10%));
+}
+
+.sheet[data-opened] {
+  transform: translateY(0);
+  filter: drop-shadow(0 22px 44px rgb(70 76 58 / 16%));
+}
+
+.panel {
+  position: relative;
+  background:
+    repeating-linear-gradient(178deg, rgb(120 100 72 / 3.5%) 0 1px, transparent 1px 17px),
+    #fbf9f2;
+  /* 曲线要匀一点：过于 ease-out 的话前 1/3 就转完了，看不出是在「翻折」 */
+  transition: transform 1.05s cubic-bezier(0.42, 0.04, 0.24, 1);
+  backface-visibility: hidden;
+}
+
+/* 折边：两翼绕各自靠中缝的一侧转开 */
+.wingLeft {
+  transform-origin: right center;
+  transform: rotateY(-96deg);
+  border-right: 1px solid rgb(120 100 72 / 14%);
+  border-radius: 3px 0 0 3px;
+  transition-delay: 0.05s;
+}
+
+.wingRight {
+  transform-origin: left center;
+  transform: rotateY(96deg);
+  border-left: 1px solid rgb(120 100 72 / 14%);
+  border-radius: 0 3px 3px 0;
+  transition-delay: 0.18s;
+}
+
+.sheet[data-opened] .wingLeft,
+.sheet[data-opened] .wingRight {
+  transform: rotateY(0deg);
+}
+
+/* 中缝比两翼略暗一点，做出「一直被盖住」的纸色差 */
+.spine {
+  background:
+    repeating-linear-gradient(178deg, rgb(120 100 72 / 3.5%) 0 1px, transparent 1px 17px),
+    #f8f5ec;
+}
+
+/* 折页受光：合拢时两翼压暗，展开过程中提亮，卖 3D 感 */
+.wingLeft::after,
+.wingRight::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  opacity: 1;
+  transition: opacity 1.05s ease;
+  pointer-events: none;
+}
+
+.wingLeft::after {
+  background: linear-gradient(90deg, rgb(74 66 48 / 42%), rgb(74 66 48 / 4%));
+}
+
+.wingRight::after {
+  background: linear-gradient(270deg, rgb(74 66 48 / 42%), rgb(74 66 48 / 4%));
+}
+
+.sheet[data-opened] .wingLeft::after,
+.sheet[data-opened] .wingRight::after {
+  opacity: 0;
+}
+
+.panelInner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: clamp(18px, 2.1vw, 30px);
+  overflow: hidden;
+}
+
+/* ---- 面板内容 ---- */
+
+.portrait {
+  align-self: center;
+  /* 不设 flex-shrink:0 的话会被同栏内容挤扁，还会掩盖加载失败 */
+  flex: 0 0 auto;
+  width: auto;
+  height: clamp(120px, 15vw, 190px);
+  margin-bottom: 10px;
+  object-fit: contain;
+}
+
+.name {
+  margin: 0 0 4px;
+  font-size: clamp(26px, 2.6vw, 34px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.035em;
+}
+
+.dot {
+  color: var(--color-clay);
+}
+
+.role {
+  margin: 0 0 4px;
+  color: #6b7263;
+  font: 400 11.5px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.12em;
 }
 
-.block {
-  margin-bottom: clamp(44px, 8vh, 76px);
-}
-
-.blockTitle {
-  padding-bottom: 10px;
-  margin: 0 0 26px;
-  color: #4f7344;
-  font: 500 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.22em;
-  border-bottom: 1px solid rgb(95 130 80 / 24%);
-}
-
-/* 时间线：一条主干 + 每年一圈年轮 */
-.timeline {
-  position: relative;
-  display: grid;
-  gap: 2px;
-  padding: 0 0 0 18px;
-  margin: 0;
-  list-style: none;
-}
-
-.timeline::before {
-  position: absolute;
-  top: 10px;
-  bottom: 10px;
-  left: 3px;
-  width: 1px;
-  content: "";
-  background: linear-gradient(
-    rgb(95 130 80 / 10%),
-    rgb(95 130 80 / 45%) 18%,
-    rgb(95 130 80 / 45%) 82%,
-    rgb(95 130 80 / 10%)
-  );
-}
-
-.ring {
-  position: relative;
-  display: grid;
-  grid-template-columns: 148px 52px 1fr;
-  gap: 14px;
-  align-items: baseline;
-  padding: 11px 8px 11px 0;
-  border-radius: 4px;
-  transition: background 0.18s ease;
-}
-
-.ring:hover {
-  background: rgb(255 255 255 / 62%);
-}
-
-.ring::before {
-  position: absolute;
-  top: 1.28em;
-  left: -18.5px;
-  width: 7px;
-  height: 7px;
-  content: "";
-  background: var(--color-paper);
-  border: 1.5px solid rgb(95 130 80 / 62%);
-  border-radius: 50%;
-}
-
-.ringPeriod {
+.status {
+  margin: 0 0 14px;
   color: #8b725b;
-  font: 500 11.5px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font: 400 11px/1.4 ui-monospace, "SF Mono", Menlo, monospace;
   letter-spacing: 0.08em;
 }
 
-.ringKind {
-  justify-self: start;
-  padding: 2px 7px;
-  color: #5c6552;
-  font: 400 11px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
-  letter-spacing: 0.05em;
-  background: rgb(95 130 80 / 11%);
-  border-radius: 3px;
-}
-
-.ringKind[data-kind="项目"] {
-  color: #6b4a2f;
-  background: rgb(184 115 74 / 14%);
-}
-
-.ringKind[data-kind="奖项"] {
-  color: #7d5a1f;
-  background: rgb(196 158 62 / 18%);
-}
-
-.ringTitle {
-  font-size: 15px;
-  line-height: 1.7;
-  letter-spacing: 0.03em;
-}
-
-.ringDetail {
-  margin-left: 10px;
-  color: #85796a;
-  font-size: 12.5px;
-  font-style: normal;
-  letter-spacing: 0.04em;
-}
-
-.cards {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-.card {
-  padding: 20px 22px;
-  background: rgb(255 255 255 / 66%);
-  border: 1px solid rgb(95 130 80 / 20%);
-  border-radius: 8px;
-}
-
-.card + .card {
-  margin-top: 16px;
-}
-
-.cardTitle {
-  margin: 0 0 6px;
-  font-size: 17px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.03em;
-}
-
-.cardMeta {
-  margin: 0 0 14px;
-  color: #85796a;
-  font: 400 12.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.05em;
-}
-
-.factList,
-.boundaryList {
-  display: grid;
-  gap: 9px;
-  padding: 0;
+.statement {
   margin: 0;
-  list-style: none;
-}
-
-.factList li,
-.boundaryList li {
-  position: relative;
-  padding-left: 18px;
-  font-size: 15px;
-  line-height: 1.9;
-  letter-spacing: 0.03em;
+  padding-left: 10px;
+  color: #4a5043;
+  font-size: 12.5px;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  border-left: 2px solid rgb(95 130 80 / 38%);
   text-wrap: pretty;
 }
 
-.factList li::before {
-  position: absolute;
-  top: 0.8em;
-  left: 2px;
-  width: 5px;
-  height: 5px;
-  content: "";
-  background: rgb(95 130 80 / 58%);
-  border-radius: 50%;
+.blockTitle {
+  padding-bottom: 5px;
+  margin: 18px 0 10px;
+  color: #4f7344;
+  font: 500 10.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.2em;
+  border-bottom: 1px solid rgb(95 130 80 / 22%);
 }
 
-.boundaryList {
-  padding-top: 12px;
-  margin-top: 14px;
-  border-top: 1px dashed rgb(184 115 74 / 40%);
+.blockTitle:first-child {
+  margin-top: 0;
 }
 
-.boundaryList li {
-  color: #86664c;
-  font-size: 13.5px;
-  line-height: 1.85;
+.entry {
+  margin-bottom: 11px;
 }
 
-.boundaryList li::before {
-  position: absolute;
-  left: 2px;
-  content: "※";
-  font-size: 11px;
-}
-
-.note {
-  margin: 16px 0 0;
-  color: #85796a;
+.entryHead {
+  margin: 0 0 2px;
   font-size: 13px;
-  line-height: 1.8;
-  letter-spacing: 0.03em;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
 }
 
-.projectList {
+.entryMeta {
+  margin: 0 0 4px;
+  color: #85796a;
+  font: 400 10.5px/1.45 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.04em;
+}
+
+.entryFacts,
+.entryBody {
+  margin: 0;
+  color: #5c6552;
+  font-size: 12px;
+  line-height: 1.75;
+  letter-spacing: 0.02em;
+  text-wrap: pretty;
+}
+
+.contact {
+  margin: 0 0 4px;
+  color: #4a5043;
+  font: 400 11.5px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+
+/* 项目栏 */
+.projects {
   display: grid;
   gap: 2px;
   padding: 0;
@@ -209,157 +260,188 @@
 
 .projectLink {
   display: grid;
-  grid-template-columns: minmax(0, 200px) minmax(0, 1fr) auto;
-  gap: 6px 18px;
-  align-items: baseline;
-  padding: 15px 10px;
+  grid-template-columns: 1fr auto;
+  gap: 1px 8px;
+  padding: 7px 6px;
   text-decoration: none;
   border-bottom: 1px solid rgb(95 130 80 / 14%);
-  transition: background 0.18s ease, padding-left 0.18s ease;
+  transition: background 0.18s ease;
 }
 
 .projectLink:hover {
-  padding-left: 16px;
-  background: rgb(255 255 255 / 66%);
+  background: rgb(255 255 255 / 70%);
 }
 
 .projectName {
-  font-size: 16.5px;
-  letter-spacing: 0.03em;
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
 }
 
 .projectLink:hover .projectName {
   color: var(--color-clay);
 }
 
-.projectTagline {
-  color: #6d6455;
-  font-size: 14px;
-  letter-spacing: 0.03em;
-}
-
-.projectMeta {
+.projectDate {
   color: #8b8574;
-  font: 400 11.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.07em;
+  font: 400 10px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.06em;
   text-align: right;
+  white-space: nowrap;
 }
 
-.skills {
-  display: grid;
-  gap: 22px;
+.projectTagline {
+  grid-column: 1 / -1;
+  color: #7a6d59;
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
 }
 
+.projectStatus {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 2px 7px;
+  margin-top: 3px;
+  color: #6b4a2f;
+  font: 400 10px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
+  background: rgb(184 115 74 / 13%);
+  border-radius: 999px;
+}
+
+/* 能力与奖项 */
 .skillGroup {
-  display: grid;
-  grid-template-columns: 108px 1fr;
-  gap: 8px 18px;
-  align-items: start;
+  margin-bottom: 8px;
 }
 
 .skillDomain {
-  margin: 4px 0 0;
+  margin: 0 0 2px;
   color: #5c6552;
-  font: 500 13px/1.5 inherit;
-  letter-spacing: 0.1em;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
+.skillItems {
+  margin: 0;
+  color: #7a7365;
+  font: 400 10.5px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+  letter-spacing: 0.01em;
+}
+
+.awards {
+  display: grid;
+  gap: 6px;
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
-.chips li {
-  padding: 4px 10px;
+.awards li {
+  position: relative;
+  padding-left: 13px;
   color: #5c6552;
-  font: 400 12.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
-  letter-spacing: 0.03em;
-  background: rgb(255 255 255 / 70%);
-  border: 1px solid rgb(95 130 80 / 24%);
-  border-radius: 3px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
 }
 
-.cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 24px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px 26px;
-  background: rgb(95 130 80 / 9%);
-  border: 1px solid rgb(95 130 80 / 26%);
-  border-radius: 10px;
+.awards li::before {
+  position: absolute;
+  top: 0.62em;
+  left: 2px;
+  width: 4px;
+  height: 4px;
+  content: "";
+  background: rgb(95 130 80 / 58%);
+  border-radius: 50%;
 }
 
-.cta p {
-  margin: 0;
-  font-size: 15px;
+.note {
+  max-width: 1180px;
+  margin: clamp(20px, 4vh, 34px) auto 0;
+  color: #85796a;
+  font-size: 12.5px;
   line-height: 1.8;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  text-align: center;
 }
 
-.ctaLink {
-  padding: 11px 20px;
-  color: #fbfbf6;
-  font-size: 14.5px;
-  letter-spacing: 0.07em;
-  text-decoration: none;
-  white-space: nowrap;
-  background: var(--color-green);
-  border-radius: 2px;
-  box-shadow: 0 2px 0 rgb(60 85 48 / 50%);
+.note a {
+  color: #4f7344;
+  text-underline-offset: 3px;
 }
 
-.ctaLink:hover {
-  box-shadow: 0 4px 0 rgb(60 85 48 / 40%);
-}
-
-@media (max-width: 760px) {
-  .ring {
-    grid-template-columns: 1fr;
-    gap: 3px;
-    padding: 12px 6px 12px 0;
+/* ---- 移动端：放弃「一页」，单栏堆叠可滚动 ---- */
+@media (max-width: 860px) {
+  .stage {
+    perspective: none;
   }
 
-  .ring::before {
-    top: 1.05em;
+  .sheet {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform: none;
+    transform-style: flat;
   }
 
-  .ringKind {
-    justify-self: start;
+  .panel,
+  .sheet[data-opened] .wingLeft,
+  .sheet[data-opened] .wingRight {
+    transform: none;
   }
 
-  .projectLink {
-    grid-template-columns: 1fr;
-    gap: 3px;
+  .wingLeft,
+  .wingRight {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
   }
 
-  .projectMeta {
-    text-align: left;
+  /* 折页受光在平铺时没有意义，会变成一块脏阴影 */
+  .wingLeft::after,
+  .wingRight::after {
+    display: none;
   }
 
-  .skillGroup {
-    grid-template-columns: 1fr;
+  .panelInner {
+    height: auto;
+    overflow: visible;
   }
 
-  .factList li,
-  .boundaryList li,
-  .ringTitle {
-    font-size: 14.5px;
+  .portrait {
+    height: 200px;
+  }
+
+  .statement,
+  .entryFacts,
+  .entryBody {
+    font-size: 13.5px;
+    line-height: 1.9;
+  }
+
+  .projectName {
+    font-size: 15px;
+  }
+
+  .projectTagline,
+  .skillItems,
+  .awards li {
+    font-size: 12.5px;
+  }
+
+  .refold {
+    display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ring,
+  .sheet,
+  .panel,
+  .wingLeft::after,
+  .wingRight::after,
   .projectLink {
     transition: none;
-  }
-
-  .projectLink:hover {
-    padding-left: 10px;
   }
 }

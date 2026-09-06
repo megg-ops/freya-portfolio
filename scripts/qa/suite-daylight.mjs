@@ -207,16 +207,36 @@ const OVERFLOW = `(() => ({
 {
   const page = await newPage();
   await goto(page, "/resume");
-  const r = await evalJs(page, `(() => ({
-    title: document.querySelector('h1')?.textContent.trim(),
-    sections: [...document.querySelectorAll('h2')].map(h => h.textContent.trim()),
-    timeline: document.querySelectorAll('ol li').length,
-    projectLinks: document.querySelectorAll('a[href^="/projects/"]').length,
-    hasName: document.body.innerText.includes('湖南大学') || document.body.innerText.includes('中南财经'),
-  }))()`);
+  // 履历已改为三折页一页纸 CV：原先 13 条的时间线是刻意去掉的——它和项目
+  // 列表重复 7 条，一页纸上不该有两套时间叙事。
+  await sleep(1800); // 等折页展开动画跑完
+  const r = await evalJs(page, `(() => {
+    const sheet = document.querySelector('article');
+    const panels = [...document.querySelectorAll('article > section')];
+    return {
+      title: document.querySelector('h1')?.textContent.trim(),
+      sections: [...document.querySelectorAll('h2')].map(h => h.textContent.trim()),
+      panels: panels.length,
+      opened: sheet?.getAttribute('data-opened'),
+      wingRotations: panels.map(p => {
+        const m = new DOMMatrix(getComputedStyle(p).transform);
+        return Math.round(Math.asin(Math.min(1, Math.max(-1, -m.m31))) * 180 / Math.PI);
+      }),
+      panelOverflow: panels.map(p => p.firstElementChild.scrollHeight - p.firstElementChild.clientHeight),
+      projectLinks: document.querySelectorAll('a[href^="/projects/"]').length,
+      awards: document.querySelectorAll('article ul')[1]?.children.length ?? 0,
+      hasName: document.body.innerText.includes('湖南大学') || document.body.innerText.includes('中南财经'),
+      docH: document.documentElement.scrollHeight,
+      vh: window.innerHeight,
+    };
+  })()`);
   record("履历页可读且有内容", !!r.title && r.sections.length >= 6, r.sections.join("/"));
-  record("履历时间线条目完整", r.timeline === 13, "count=" + r.timeline);
+  record("履历是三折页结构", r.panels === 3, "panels=" + r.panels);
+  record("折页展开到位（两翼旋转归零）", r.opened === "true" && r.wingRotations.every((d) => Math.abs(d) <= 1), r.wingRotations.join(","));
+  record("三个面板都不溢出", r.panelOverflow.every((v) => v <= 0), r.panelOverflow.join(","));
+  record("整张纸一屏装得下，不用滚动", r.docH <= r.vh, `docH=${r.docH} vh=${r.vh}`);
   record("履历项目链接指向真实详情", r.projectLinks === 7, "count=" + r.projectLinks);
+  record("履历列出奖项", r.awards === 3, "count=" + r.awards);
   record("履历未泄露学校全名", r.hasName === false);
   const of = await evalJs(page, OVERFLOW);
   record("履历 1440：无横向溢出", of.h <= 0, `h=${of.h}`);
