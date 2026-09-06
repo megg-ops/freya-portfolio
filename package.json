@@ -11,8 +11,7 @@
     "qa": "node scripts/qa/suite-daylight.mjs",
     "qa:layout": "node scripts/qa/suite-layout.mjs",
     "qa:subpath": "node scripts/qa/suite-subpath.mjs",
-    "qa:perf": "node scripts/qa/perf.mjs",
-    "qa:showcase": "node scripts/qa/suite-showcase.mjs"
+    "qa:perf": "node scripts/qa/perf.mjs"
   },
   "dependencies": {
     "gsap": "3.15.0",

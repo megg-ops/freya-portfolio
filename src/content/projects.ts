@@ -146,10 +146,6 @@ export const PROJECTS: readonly Project[] = [
         kind: "live",
       },
     ],
-    cover: {
-      src: asset("/assets/projects/chaiyu-cover.webp"),
-      alt: "柴愈界面：手绘阁楼场景里的柴犬与对话气泡，下方是投喂、丢球、陪它趴会儿等互动按钮",
-    },
   },
   {
     id: "ready2apply",
@@ -203,10 +199,6 @@ export const PROJECTS: readonly Project[] = [
         kind: "repo",
       },
     ],
-    cover: {
-      src: asset("/assets/projects/ready2apply-cover.webp"),
-      alt: "Ready2Apply 仪表盘：岗位准备度评分 90、P0–P3 分层覆盖进度条与主要缺口列表",
-    },
   },
   {
     id: "solopr",
@@ -353,10 +345,6 @@ export const PROJECTS: readonly Project[] = [
         kind: "repo",
       },
     ],
-    cover: {
-      src: asset("/assets/projects/sisters-festival-cover.webp"),
-      alt: "她的姊妹节封面：苗族盛装少女提着装有五色姊妹饭的竹篮，站在清水江边的木楼前",
-    },
   },
   {
     id: "repoloop",

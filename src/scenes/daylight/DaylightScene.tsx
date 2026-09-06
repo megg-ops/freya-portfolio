@@ -3,7 +3,6 @@ import { Link, useMatch, useNavigate } from "react-router-dom";
 
 import { useSiteStore } from "../../app/store";
 import { ProjectDialog } from "../../components/ProjectDialog";
-import { ProjectShowcase } from "../../components/ProjectShowcase";
 import { PROJECTS, PROJECT_MAP } from "../../content/projects";
 import { asset } from "../../lib/asset";
 import { NotFoundPage } from "../../pages/NotFoundPage";
@@ -28,67 +27,33 @@ export function DaylightScene() {
   }, [season]);
 
   /**
-   * 关闭详情后把焦点还给「当初点开它的那个元素」，而不是按 id 去找首屏的
-   * 根系入口——详情现在可以从首屏根系或下方走马灯两处打开，按 id 找会把
-   * 从走马灯进来的访客一路弹回页面顶部。
-   *
-   * 触发元素必须在**渲染期**捕获：子组件的 effect 先于父组件执行，等到父
-   * effect 跑的时候，弹层已经把焦点移进去了。
-   *
-   * 焦点移交本身则要等弹层真正卸载后再做，所以记在 ref 里由 effect 执行，
+   * 关闭详情后把焦点还给对应的根系入口，键盘用户不会掉回页面顶部。
+   * 焦点要等弹层真正卸载后再移交，所以记在 ref 里由 effect 执行，
    * 而不是在 navigate 之后直接 rAF——那样会和 React 的提交时机赛跑。
    */
-  const triggerRef = useRef<HTMLElement | null>(null);
-  const pendingFocusRef = useRef<HTMLElement | null>(null);
-  const pendingFallbackRef = useRef<string | null>(null);
-
-  if (activeProject && !triggerRef.current) {
-    const active = document.activeElement;
-    // 深链接直接进来时 activeElement 是 body，还给它没有意义
-    triggerRef.current =
-      active instanceof HTMLElement && active !== document.body ? active : null;
-  }
+  const pendingFocusRef = useRef<string | null>(null);
 
   const closeProject = useCallback(() => {
-    pendingFocusRef.current = triggerRef.current;
-    pendingFallbackRef.current = projectId ?? null;
-    triggerRef.current = null;
+    pendingFocusRef.current = projectId ?? null;
     navigate("/");
   }, [navigate, projectId]);
 
   useEffect(() => {
     if (activeProject) return;
-    triggerRef.current = null;
     const target = pendingFocusRef.current;
+    if (!target) return;
     pendingFocusRef.current = null;
-    if (target?.isConnected) {
-      target.focus();
-      return;
-    }
-    // 捕获不到触发元素时（脚本调用 click()、或从没聚焦过的入口进来）
-    // 退回按 id 找首屏根系入口，至少不把焦点丢回 body。
-    const fallbackId = pendingFallbackRef.current;
-    pendingFallbackRef.current = null;
-    if (fallbackId) document.getElementById(fallbackId)?.focus();
+    document.getElementById(target)?.focus();
   }, [activeProject]);
 
-  /** 「进入项目」送访客去下面的展示区，并把焦点一起带过去。 */
-  const enterProjects = () => {
-    const section = document.getElementById("projects");
-    if (!section) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    section.scrollIntoView({
-      behavior: reduce ? "auto" : "smooth",
-      block: "start",
-    });
-    const heading = section.querySelector("h2");
-    if (heading instanceof HTMLElement) heading.focus({ preventScroll: true });
+  const focusProjectRoots = () => {
+    const target = document.getElementById(projectId ?? PROJECTS[0].id);
+    if (target instanceof HTMLElement) target.focus();
   };
 
   if (unknownProject) return <NotFoundPage />;
 
   return (
-    <>
     <main ref={sceneRef} className={styles.hero}>
       <div className={styles.sky} />
       <div className={styles.soil} />
@@ -173,7 +138,7 @@ export function DaylightScene() {
         <Tree layers={springAssets.treeLayers} parallaxTargetRef={sceneRef} />
       </div>
 
-      <nav id="project-roots" className={styles.projectRoots} aria-label="项目根系">
+      <nav id="projects" className={styles.projectRoots} aria-label="项目根系">
         {PROJECTS.map((project) => (
           <Link
             id={project.id}
@@ -225,7 +190,7 @@ export function DaylightScene() {
           七个项目从同一套根系长出来，按时间从左往右。
         </p>
         <div className={styles.actions}>
-          <button className={styles.button} type="button" onClick={enterProjects}>
+          <button className={styles.button} type="button" onClick={focusProjectRoots}>
             进入项目
           </button>
           <Link className={`${styles.button} ${styles.ghost}`} to="/resume">
@@ -268,14 +233,9 @@ export function DaylightScene() {
         <rect width="1440" height="1000" filter="url(#grainA)" />
       </svg>
 
+      {activeProject ? (
+        <ProjectDialog project={activeProject} onClose={closeProject} />
+      ) : null}
     </main>
-
-    <ProjectShowcase />
-
-    {/* 弹层放在 main 之外：它要盖住整页，而不只是首屏那一屏 */}
-    {activeProject ? (
-      <ProjectDialog project={activeProject} onClose={closeProject} />
-    ) : null}
-    </>
   );
 }
