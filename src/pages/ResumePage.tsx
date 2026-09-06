@@ -27,19 +27,27 @@ import styles from "./ResumePage.module.css";
  * ⚠️ 面板里的内容与版式是待定的第一版，只为看展开效果。取舍（技能压缩、
  * 时间线是否保留、实习怎么表述）还没有定，改动预期集中在这个文件。
  */
+/** 弹出与展开必须分两段：叠在一起播的话，折叠态根本来不及被看见。 */
+type Stage = "hidden" | "popped" | "opened";
+
+const POP_AT = 80;
+const UNFOLD_AT = 760;
+
 export function ResumePage() {
-  const [opened, setOpened] = useState(false);
+  const [stage, setStage] = useState<Stage>("hidden");
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setOpened(true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setStage("opened");
       return;
     }
-    // 先让纸落到位，再展开，否则两个动作叠在一起看不清是「折页打开」
-    const timer = window.setTimeout(() => setOpened(true), 320);
-    return () => window.clearTimeout(timer);
+    const pop = window.setTimeout(() => setStage("popped"), POP_AT);
+    const unfold = window.setTimeout(() => setStage("opened"), UNFOLD_AT);
+    return () => {
+      window.clearTimeout(pop);
+      window.clearTimeout(unfold);
+    };
   }, []);
 
   return (
@@ -52,8 +60,9 @@ export function ResumePage() {
           className={styles.refold}
           type="button"
           onClick={() => {
-            setOpened(false);
-            window.setTimeout(() => setOpened(true), 420);
+            // 只收折页、不把纸收回去，重看的是展开这一下
+            setStage("popped");
+            window.setTimeout(() => setStage("opened"), 420);
           }}
         >
           再展开一次
@@ -63,7 +72,8 @@ export function ResumePage() {
       <div className={styles.stage}>
         <article
           className={styles.sheet}
-          data-opened={opened ? "true" : undefined}
+          data-popped={stage !== "hidden" ? "true" : undefined}
+          data-opened={stage === "opened" ? "true" : undefined}
           aria-label={`${PROFILE.name} 的一页履历`}
         >
           {/* 左翼 */}

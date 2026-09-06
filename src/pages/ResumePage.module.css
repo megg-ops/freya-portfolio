@@ -68,22 +68,32 @@
   width: min(1180px, 100%, calc(var(--sheet-h) * 1.414));
   margin: 0 auto;
   transform-style: preserve-3d;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.7s ease;
-  transform: translateY(14px);
-  filter: drop-shadow(0 10px 18px rgb(70 76 58 / 10%));
+  /* 弹出：back-out 曲线尾部有轻微过冲，纸落位时像被弹到桌面上 */
+  transition: transform 0.62s cubic-bezier(0.34, 1.46, 0.64, 1),
+    opacity 0.34s ease,
+    filter 0.62s ease;
+  transform: scale(0.86) translateY(30px);
+  opacity: 0;
+  filter: drop-shadow(0 6px 12px rgb(70 76 58 / 6%));
 }
 
-.sheet[data-opened] {
-  transform: translateY(0);
+/* 第一段：纸弹到桌面上（此时仍是折叠的） */
+.sheet[data-popped] {
+  transform: scale(1) translateY(0);
+  opacity: 1;
   filter: drop-shadow(0 22px 44px rgb(70 76 58 / 16%));
 }
 
 .panel {
   position: relative;
-  background:
-    repeating-linear-gradient(178deg, rgb(120 100 72 / 3.5%) 0 1px, transparent 1px 17px),
-    #fbf9f2;
+  /* 整张纸横向切三份：background-size 300% 让图铺满整张纸的宽度，
+     每个面板再用 background-position 取自己那一份。这样纸纤维是连贯的，
+     不是三块各自平铺的补丁。折痕和横格纹一律不烧进图里——折痕在展开
+     过程中是真实的 3D 弯折，由 CSS 受光层负责；格纹要跟正文行高对齐。 */
+  background-image: url("/assets/paper-sheet.webp");
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  background-color: #fbf9f2;
   /* 曲线要匀一点：过于 ease-out 的话前 1/3 就转完了，看不出是在「翻折」 */
   transition: transform 1.05s cubic-bezier(0.42, 0.04, 0.24, 1);
   backface-visibility: hidden;
@@ -91,6 +101,7 @@
 
 /* 折边：两翼绕各自靠中缝的一侧转开 */
 .wingLeft {
+  background-position: left center;
   transform-origin: right center;
   transform: rotateY(-96deg);
   border-right: 1px solid rgb(120 100 72 / 14%);
@@ -99,6 +110,7 @@
 }
 
 .wingRight {
+  background-position: right center;
   transform-origin: left center;
   transform: rotateY(96deg);
   border-left: 1px solid rgb(120 100 72 / 14%);
@@ -111,11 +123,8 @@
   transform: rotateY(0deg);
 }
 
-/* 中缝比两翼略暗一点，做出「一直被盖住」的纸色差 */
 .spine {
-  background:
-    repeating-linear-gradient(178deg, rgb(120 100 72 / 3.5%) 0 1px, transparent 1px 17px),
-    #f8f5ec;
+  background-position: center center;
 }
 
 /* 折页受光：合拢时两翼压暗，展开过程中提亮，卖 3D 感 */
@@ -390,6 +399,12 @@
   .sheet[data-opened] .wingLeft,
   .sheet[data-opened] .wingRight {
     transform: none;
+  }
+
+  /* 堆叠后各面板宽度一致，横切三分之一没有意义，各自铺满即可 */
+  .panel {
+    background-size: cover;
+    background-position: center center;
   }
 
   .wingLeft,
