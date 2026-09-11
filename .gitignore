@@ -8,3 +8,4 @@ dist/
 .qa-shots/
 .repo-tidy/
 REPO_CLEANUP.md
+docs/
