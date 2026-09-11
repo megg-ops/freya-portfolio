@@ -1,7 +1,7 @@
 /**
  * 履历与联系方式内容模块。
  *
- * 事实来源：`materials/website_content_anon.md`（匿名版 v1.0）§3、§5–§9。
+ * 事实来源：`website/content-anon.md`（匿名版 v1.0）§3、§5–§9。
  * 公开口径：不写姓名全称、不写学校全名（用 985 / 211）、不写实习单位品牌、
  * 不写手机号与学号。联系邮箱经用户 2026-09-05 确认可公开。
  */
@@ -35,7 +35,7 @@ export interface SkillGroup {
 
 export const PROFILE = {
   name: "Freya",
-  role: "AI 应用 / 大模型应用开发",
+  role: "AI 产品",
   status: "应用统计硕士在读 · 2027 届",
   statement:
     "我把模糊的需求，种成可以验证的东西。做 AI 应用时我关心的始终是同一件事：模型处理开放语义，程序守住确定事实，用户掌握关键决策。",
@@ -46,7 +46,7 @@ export const EDUCATION: readonly EducationEntry[] = [
     school: "985 高校",
     degree: "应用统计 · 硕士（推免）",
     period: "2025.09 – 至今",
-    facts: ["GPA 3.83 / 4.0", "研究生学业一等奖学金", "院研究生会科创部骨干"],
+    facts: ["GPA 3.83 / 4.0", "专业排名 1 / 35", "院研究生会科创部骨干"],
   },
   {
     school: "211 高校",
@@ -81,7 +81,7 @@ export const AWARDS: readonly string[] = [
   "全国大学生统计建模大赛 省赛二等奖（队长，2026）",
   "FC-OPC Next iBot 大赛「一人公司效率提升 Agent」赛道优胜奖（2026）",
   "全国大学生数学竞赛 省赛二等奖 ×2",
-  "研究生学业一等奖学金（2025）",
+  "本科/研究生学业一等奖学金",
   "CET-6 536 · 研究生英语免修",
 ];
 
@@ -176,7 +176,7 @@ export const TIMELINE: readonly TimelineEntry[] = [
   {
     period: "2026.07",
     kind: "项目",
-    title: "SoloPR 一人公关部",
+    title: "Solo Brand 一人品牌部",
     detail: "赛道优胜奖",
   },
   {

@@ -64,8 +64,10 @@
 
 .visual {
   position: relative;
-  /* 固定比例，切换时高度不跳 */
-  aspect-ratio: 4 / 3;
+  /* 固定比例，切换时高度不跳。
+     封面统一为 1600×1000（16:10），桌面与移动断点都按这个比例走，
+     object-fit: cover 才不会把画面两侧的标题与标签裁掉。 */
+  aspect-ratio: 16 / 10;
   border-radius: 14px;
 }
 
@@ -160,6 +162,7 @@
 }
 
 .detailName {
+  font-family: var(--font-project);
   margin: 0 0 8px;
   font-size: clamp(26px, 3.2vw, 36px);
   font-weight: 400;
@@ -177,12 +180,13 @@
 
 .detailSummary {
   margin: 0 0 22px;
-  padding-left: 16px;
-  color: #4a5043;
+  padding: 16px 20px;
+  color: #35482f;
   font-size: 15.5px;
   line-height: 1.95;
   letter-spacing: 0.03em;
-  border-left: 2px solid rgb(95 130 80 / 38%);
+  background: #e6eddc;
+  border-radius: 8px;
   text-wrap: pretty;
 }
 
@@ -222,6 +226,8 @@
 .detailLink {
   display: inline-block;
   padding: 12px 22px;
+  /* 这颗是 <button>（详情弹层由页面本地挂），不像 <a href> 自带手型 */
+  cursor: pointer;
   color: #fbfbf6;
   font-size: 15px;
   letter-spacing: 0.075em;
@@ -313,8 +319,9 @@
 }
 
 .timelineName {
+  font-family: var(--font-project);
   color: #6a6052;
-  font-size: 13px;
+  font-size: 14.5px;
   line-height: 1.35;
   letter-spacing: 0.03em;
   overflow-wrap: anywhere;
@@ -322,7 +329,7 @@
 
 .timelineItem[data-highlight] .timelineName {
   color: #463d31;
-  font-size: 15px;
+  font-size: 16.5px;
 }
 
 .timelineItem[aria-current] .timelineName {

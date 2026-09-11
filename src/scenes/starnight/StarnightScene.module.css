@@ -1,114 +1,137 @@
-/* 占位样式。星夜模式的正式视觉方案未定，这里只保证页面可读、可导航、
-   与日光有明确区分，不预设最终的空间布局或星座形态。 */
-
 .scene {
-  min-height: 100vh;
-  padding: clamp(40px, 8vh, 88px) clamp(20px, 5vw, 64px);
-  color: #d8dce8;
-  background:
-    radial-gradient(80% 50% at 20% 0%, #1c2438 0%, rgb(28 36 56 / 0%) 60%),
-    radial-gradient(60% 40% at 85% 15%, #232b44 0%, rgb(35 43 68 / 0%) 62%),
-    #141a29;
+  position: relative;
+  isolation: isolate;
+  min-height: 760px;
+  height: 100svh;
+  overflow: hidden;
+  color: #f0ede4;
+  background: #0b2035;
+  --color-green: #f4d9a2;
 }
-
-.inner {
-  max-width: 68ch;
-  margin: 0 auto;
+.landscape, .shade { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
+.landscape { object-fit: cover; object-position: center; }
+.shade { z-index: -1; background: linear-gradient(180deg, rgb(5 16 29 / 28%), transparent 45%, transparent 74%, rgb(4 13 22 / 85%)); }
+.header { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 27px 4%; }
+.brand { display: flex; gap: 17px; align-items: baseline; font-size: 24px; text-decoration: none; }
+.brand span { font-size: 12px; letter-spacing: .16em; color: #d2deea; }
+.daylight { display: inline-flex; gap: 10px; align-items: center; min-height: 44px; font-size: 13px; text-decoration: none; }
+.daylight span { font-size: 22px; color: #f4d9a2; }
+.intro { position: absolute; left: 5%; top: 20%; text-shadow: 0 2px 8px #081a2d; pointer-events: none; }
+.chapter { margin-bottom: 17px; font-size: 13px; color: #e7d5b2; letter-spacing: .12em; }
+.intro h1 { font-size: clamp(25px, 2.8vw, 43px); font-weight: 400; line-height: 1.6; letter-spacing: .07em; text-wrap: balance; }
+.invitation { margin-top: 20px; font-size: 13px; color: #dce4ed; }
+.sky { position: absolute; left: 28%; right: 4%; top: 13%; height: 36%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2%; }
+.galaxy { position: relative; color: var(--galaxy-color); align-self: start; min-width: 0; }
+.galaxy:nth-child(2) { margin-top: 70px; }
+.galaxy:nth-child(3) { margin-top: 6px; }
+.galaxyName { margin: 0; text-align: center; font-weight: 400; font-size: 15px; letter-spacing: .2em; text-shadow: 0 2px 8px #071c32; }
+.galaxyName span { display: block; max-width: 21ch; margin: 4px auto 0; font-size: 11px; line-height: 1.6; letter-spacing: .06em; color: #d7e0ea; text-wrap: pretty; }
+.orbit { position: relative; width: 100%; aspect-ratio: 320 / 220; }
+.dust { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.connection { fill: none; stroke: currentColor; stroke-width: .65; stroke-dasharray: 3 6; opacity: .38; transition: opacity .3s; }
+.galaxy:hover .connection, .galaxy:focus-within .connection { opacity: .85; }
+.star { position: absolute; display: grid; place-items: center; transform: translate(-50%, -50%); width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #fdf2d9; cursor: pointer; }
+.starLight { position: relative; width: 7px; height: 7px; background: #fff7df; border-radius: 50%; box-shadow: 0 0 7px 2px #f9dfb5, 0 0 22px 4px rgb(202 223 255 / 50%); animation: breathe 3.7s ease-in-out var(--delay) infinite alternate; transition: transform .2s; }
+.starLight::before, .starLight::after { content: ""; position: absolute; left: 50%; top: 50%; width: 20px; height: 1px; transform: translate(-50%, -50%); background: linear-gradient(90deg, transparent, #fff6df, transparent); }
+.starLight::after { transform: translate(-50%, -50%) rotate(90deg); }
+.star:hover .starLight, .star:focus-visible .starLight { transform: scale(1.4); animation: none; }
+.star[data-visited="true"] { background: rgb(242 213 157 / 9%); }
+.star[data-visited="true"]::after { content: ""; position: absolute; inset: 8px; border: 1px solid rgb(255 233 185 / 45%); border-radius: 50%; }
+.starLabel { position: absolute; top: 43px; left: 50%; transform: translateX(-50%); width: max-content; padding: 3px 8px; border-radius: 4px; background: rgb(8 25 43 / 90%); color: #f5eedf; font-size: 12px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.star:hover .starLabel, .star:focus-visible .starLabel, .scene[data-names="true"] .starLabel { opacity: 1; }
+.footer { position: absolute; bottom: 25px; left: 4%; right: 4%; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.footnote { display: grid; gap: 5px; color: #cbd7e1; font-size: 11px; }
+.location { color: #f2e4ca; font-size: 14px; letter-spacing: .1em; }
+.controls { display: flex; gap: 12px; }
+.controls button { min-height: 44px; padding: 7px 15px; border: 1px solid rgb(219 227 237 / 35%); border-radius: 6px; background: rgb(8 24 38 / 88%); color: #eee9df; font-size: 12px; cursor: pointer; }
+.controls button:hover, .controls button[aria-pressed="true"] { border-color: #eed5a6; color: #ffe4ae; }
+.meteor { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 3; }
+.shower { position: absolute; inset: 0 0 auto; height: 62%; overflow: hidden; pointer-events: none; z-index: -1; mask-image: linear-gradient(#000 70%, transparent); }
+.shootingStar { position: absolute; height: 2px; opacity: 0; border-radius: 50%; background: linear-gradient(90deg, #ffefd0, rgb(220 237 255 / 75%) 12%, rgb(191 216 243 / 25%) 48%, transparent); transform: rotate(-32deg); transform-origin: left center; animation: showerPass 11s linear var(--meteor-delay) infinite; }
+.shootingStar::before { content: ""; position: absolute; left: -2px; top: -1px; width: 4px; height: 4px; border-radius: 50%; background: #fff4dc; box-shadow: 0 0 8px 2px rgb(221 236 255 / 65%); }
+.shower[data-paused="true"] .shootingStar { animation: none; opacity: 0; }
+@keyframes showerPass {
+  0% { opacity: 0; transform: translate(0, 0) rotate(-32deg); }
+  2% { opacity: .85; }
+  10% { opacity: .7; }
+  15%, 100% { opacity: 0; transform: translate(-260px, 163px) rotate(-32deg); }
 }
-
-.eyebrow {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  margin: 0 0 20px;
-  color: #8fa4c8;
-  font: 500 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  width: 26px;
-  height: 1px;
-  content: "";
-  background: currentcolor;
-  opacity: 0.6;
-}
-
-.title {
-  margin: 0 0 18px;
-  font-size: clamp(28px, 4.4vw, 42px);
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: 0.03em;
-}
-
-.lead {
-  margin: 0 0 clamp(32px, 6vh, 52px);
-  color: #a8b2c8;
-  font-size: 16px;
-  line-height: 2;
-  letter-spacing: 0.03em;
-  text-wrap: pretty;
-}
-
-.list {
-  display: grid;
-  gap: 2px;
-  padding: 0;
-  margin: 0 0 clamp(32px, 6vh, 52px);
-  list-style: none;
-}
-
-.list a {
-  display: flex;
-  gap: 16px;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 13px 10px;
-  color: inherit;
-  text-decoration: none;
-  border-bottom: 1px solid rgb(143 164 200 / 16%);
-  transition: background 0.18s ease, padding-left 0.18s ease;
-}
-
-.list a:hover {
-  padding-left: 16px;
-  background: rgb(143 164 200 / 8%);
-}
-
-.name {
-  font-size: 16.5px;
-  letter-spacing: 0.03em;
-}
-
-.list time {
-  color: #7d8aa6;
-  font: 400 11.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-}
-
-.back {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  color: #8fa4c8;
-  font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.14em;
-  text-decoration: none;
-}
-
-.back:hover {
-  color: #d8dce8;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .list a {
-    transition: none;
+.note { position: fixed; width: min(480px, calc(100% - 32px)); max-height: calc(100svh - 40px); overflow-y: auto; margin: auto; padding: 35px 38px; border: 1px solid rgb(234 245 255 / 38%); border-radius: 16px; color: #fffdf7; background: #122b40; color-scheme: dark; box-shadow: inset 0 1px 0 rgb(255 255 255 / 28%); text-shadow: 0 1px 3px rgb(4 17 30 / 65%); }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .note {
+    background: linear-gradient(135deg, rgb(233 245 255 / 14%), rgb(222 239 255 / 3%) 42%, rgb(248 225 192 / 6%)), rgb(16 38 57 / 18%);
+    -webkit-backdrop-filter: blur(10px) saturate(115%);
+    backdrop-filter: blur(10px) saturate(115%);
   }
+}
+.note::backdrop { background: rgb(3 10 18 / 10%); }
+.close { position: absolute; right: 10px; top: 8px; width: 44px; height: 44px; border: 0; background: none; color: #eee6d9; font-size: 28px; cursor: pointer; }
+.noteStar { display: block; color: #f1d095; font-size: 30px; margin-bottom: 14px; }
+.noteCategory { color: #edf3f8; font-size: 12px; letter-spacing: .06em; }
+.note h2 { margin: 13px 0 9px; font-size: 28px; font-weight: 400; }
+.noteVenue { margin-bottom: 21px; color: #e6cfa6; font-size: 12.5px; letter-spacing: .04em; }
+.noteBody { line-height: 1.95; font-size: 16px; }
+.return { display: block; margin-top: 28px; padding: 10px 0; min-height: 44px; border: 0; background: none; color: #f0d4a0; font-size: 13px; cursor: pointer; text-align: left; }
+.return span { margin-left: 6px; }
+.scene[data-still="true"] .starLight { animation: none; }
+@keyframes breathe { from { opacity: .72; } to { opacity: 1; } }
+@media (min-aspect-ratio: 2/1) {
+  .scene { min-height: 680px; }
+  .landscape { object-position: center 65%; }
+}
+@media (max-width: 1000px) {
+  .sky { left: 25%; right: 3%; top: 21%; gap: 0; }
+  .intro { top: 12%; }
+  .intro h1 { font-size: 25px; }
+  .galaxyName { font-size: 13px; }
+  .galaxy:nth-child(2) { margin-top: 115px; }
+  .starLabel { font-size: 11px; }
+}
+@media (max-width: 600px) {
+  .scene { height: auto; min-height: max(1080px, 100svh); }
+  .header { padding: 20px; }
+  .brand { font-size: 22px; gap: 10px; }
+  .brand span { font-size: 10px; }
+  .daylight { font-size: 12px; }
+  .landscape { height: 560px; top: auto; bottom: 0; object-position: 75% bottom; mask-image: linear-gradient(180deg, transparent, #000 22%); }
+  .shade { background: linear-gradient(180deg, #0b2035 0%, #0d2946 38%, transparent 65%, transparent 83%, #081a2c 100%); }
+  .intro { top: 98px; left: 25px; }
+  .chapter { margin-bottom: 8px; font-size: 11px; }
+  .intro h1 { font-size: 25px; line-height: 1.45; }
+  .invitation { margin-top: 10px; font-size: 12px; }
+  .sky { top: 272px; left: 20px; right: 20px; height: auto; display: flex; flex-direction: column; gap: 0; }
+  .galaxy { width: 245px; max-width: 100%; }
+  .galaxy:nth-child(2) { margin-top: -25px; align-self: flex-end; }
+  .galaxy:nth-child(3) { margin-top: -25px; }
+  .galaxyName { text-align: left; margin-left: 25px; font-size: 13px; }
+  .galaxyName span { display: inline; margin-left: 10px; font-size: 10px; }
+  .orbit { aspect-ratio: 320 / 220; }
+  .starLabel { opacity: 1; top: 38px; font-size: 10px; padding: 1px 5px; }
+  .footer { left: 20px; right: 20px; bottom: 20px; flex-direction: column; align-items: flex-start; gap: 14px; }
+  .controls { width: 100%; }
+  .controls button { flex: 1; }
+  .note { padding: 30px 26px; }
+  .shower { height: 68%; }
+  .shootingStar:nth-child(n + 4) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .starLight { animation: none; }
+  .starLight, .starLabel, .connection { transition: none; }
+  .meteor, .shower { display: none; }
+  .shootingStar { animation: none; }
+}
 
-  .list a:hover {
-    padding-left: 10px;
+/* 夜空的指针换成细光环。尺寸贴着流星尾迹的头部（约 6px）走，
+   环太大会把尾迹衬得很小；粗指针（触屏）保持系统默认。 */
+@media (pointer: fine) {
+  .scene,
+  .note {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='5.6' fill='none' stroke='rgba(9,24,40,.5)' stroke-width='2.4'/%3E%3Ccircle cx='10' cy='10' r='5.6' fill='none' stroke='%23f4e6c8' stroke-width='1.1'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%23fff6e2'/%3E%3C/svg%3E") 10 10, auto;
+  }
+  .scene a,
+  .scene button,
+  .note a,
+  .note button {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Ccircle cx='13' cy='13' r='7.6' fill='rgba(244,230,200,.14)' stroke='rgba(9,24,40,.45)' stroke-width='2.4'/%3E%3Ccircle cx='13' cy='13' r='7.6' fill='none' stroke='%23ffe9bd' stroke-width='1.4'/%3E%3Ccircle cx='13' cy='13' r='1.6' fill='%23fff6e2'/%3E%3C/svg%3E") 13 13, pointer;
   }
 }

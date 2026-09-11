@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 
 import { ContactPage } from "../pages/ContactPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { ProjectsPage } from "../pages/ProjectsPage";
 import { ResumePage } from "../pages/ResumePage";
 import { DaylightScene } from "../scenes/daylight/DaylightScene";
 import { StarnightScene } from "../scenes/starnight/StarnightScene";
@@ -10,6 +11,9 @@ import { StarnightScene } from "../scenes/starnight/StarnightScene";
  * 项目详情是叠在日光首屏之上的弹层，所以 `/` 和 `/projects/:id` 必须共用
  * 同一个 DaylightScene 实例——用布局路由承载，避免路由切换时整棵树重新
  * 生长、163 帧柴犬重新加载。未知 id 由 DaylightScene 内部转交 404。
+ *
+ * `/projects`（展示区）与 `/projects/:id`（详情）分属两条路由：前者是独立页面，
+ * 后者仍叠在首屏上。React Router 按段数排序，两者不会互相截胡。
  */
 export function App() {
   return (
@@ -18,6 +22,7 @@ export function App() {
         <Route index element={null} />
         <Route path="projects/:projectId" element={null} />
       </Route>
+      <Route path="/projects" element={<ProjectsPage />} />
       <Route path="/stars" element={<StarnightScene />} />
       <Route path="/resume" element={<ResumePage />} />
       <Route path="/contact" element={<ContactPage />} />

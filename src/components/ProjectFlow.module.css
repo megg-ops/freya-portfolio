@@ -1,0 +1,135 @@
+.figure {
+  margin: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 330px;
+  overflow: visible;
+}
+
+/* 主链路与分支：分支用陶土色虚线，表示被拦下或退回的方向。 */
+.edge,
+.edgeBranch {
+  fill: none;
+  stroke-width: 1.1;
+}
+
+.edge {
+  stroke: rgb(95 130 80 / 62%);
+}
+
+.edgeBranch {
+  stroke: rgb(184 115 74 / 62%);
+  stroke-dasharray: 4 4;
+}
+
+.arrowHead {
+  fill: rgb(95 130 80 / 72%);
+}
+
+.arrowHeadBranch {
+  fill: rgb(184 115 74 / 72%);
+}
+
+.edgeLabel {
+  fill: #7a6d59;
+  font: 400 10.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.04em;
+  /* 让描边垫在文字下面，走线穿过标签时仍读得清 */
+  paint-order: stroke;
+  stroke: #f8f5ed;
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+}
+
+.node rect {
+  fill: rgb(255 255 255 / 78%);
+  stroke: rgb(95 130 80 / 38%);
+  stroke-width: 1;
+}
+
+.node text {
+  fill: #3f5438;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+}
+
+/* 入口与出口：胶囊形，浅一档，和中间的处理步骤区分开 */
+.node[data-kind="input"] rect,
+.node[data-kind="output"] rect {
+  fill: rgb(95 130 80 / 10%);
+  stroke: rgb(95 130 80 / 30%);
+}
+
+.node[data-kind="input"] text,
+.node[data-kind="output"] text {
+  fill: #4f7344;
+}
+
+/* 判断点：留一道门的地方 */
+.node[data-kind="gate"] rect {
+  fill: rgb(184 115 74 / 9%);
+  stroke: rgb(184 115 74 / 52%);
+}
+
+.node[data-kind="gate"] text {
+  fill: #6b4a2f;
+}
+
+/* 分支终点：被拦下 / 退回 / 兜底走到的地方 */
+.node[data-kind="reject"] rect {
+  fill: rgb(184 115 74 / 7%);
+  stroke: rgb(184 115 74 / 40%);
+  stroke-dasharray: 5 3;
+}
+
+.node[data-kind="reject"] text {
+  fill: #7c5738;
+}
+
+/* 存储 / 约束来源：虚线框，不是流程本身的一步 */
+.node[data-kind="store"] rect {
+  fill: rgb(255 255 255 / 55%);
+  stroke: rgb(122 109 89 / 45%);
+  stroke-dasharray: 4 3;
+}
+
+.node[data-kind="store"] text {
+  fill: #6d6353;
+  font-size: 11.5px;
+}
+
+.stepDot {
+  fill: #f8f5ed;
+  stroke: rgb(95 130 80 / 50%);
+  stroke-width: 1;
+}
+
+.stepNum {
+  fill: #4f7344;
+  font: 500 10.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.caption {
+  margin-top: 12px;
+  color: #7a6d59;
+  font-size: 12.5px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

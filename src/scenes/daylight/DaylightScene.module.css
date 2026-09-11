@@ -243,7 +243,7 @@
   left: 25%;
   z-index: 4;
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 16px;
   width: 71%;
 }
@@ -272,6 +272,7 @@
 }
 
 .noteName {
+  font-family: var(--font-project);
   display: block;
   color: #6a6052;
   font-size: 13.5px;
@@ -302,6 +303,17 @@
   margin-top: 4px;
   content: "";
   background: var(--clay);
+}
+
+/* 网格排布（触屏 / 窄屏）下这一层不参与布局：只留一行定位，
+   英文名与状态标签收起，与改版前的观感一致。 */
+.noteDetail {
+  display: contents;
+}
+
+.noteEn,
+.noteStatus {
+  display: none;
 }
 
 .noteTime {
@@ -544,12 +556,13 @@
     white-space: normal;
   }
 
+  /* 行楷比黑体细，小字号下会糊，手机上比原来大一档 */
   .noteName {
-    font-size: 12.5px;
+    font-size: 14px;
   }
 
   .note[data-highlight] .noteName {
-    font-size: 14px;
+    font-size: 15.5px;
   }
 
   .noteTime {
@@ -582,9 +595,145 @@
   }
 }
 
+
+/* ──────────────────────────────────────────────────────────────────────
+   宽屏 + 有鼠标：根系换成不规则散布，早的在下、新的在上（生长的方向）。
+   默认六个都是实体的；只有真正悬停/聚焦到某一个，其余五个才淡出。
+   触发条件写成 :has(.note:hover)，不能挂在容器的 :hover 上——容器铺满整屏，
+   那样鼠标进到首屏任何位置都会把六个一起淡掉。
+   1200px 以下退回上面的网格：散布位置是百分比，名字宽度不是，窄屏会挤到一起。
+   ────────────────────────────────────────────────────────────────────── */
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+  .projectRoots {
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* 这一层铺满首屏，不设 none 会挡住底下的信箱与模式开关 */
+    pointer-events: none;
+  }
+
+  .note {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    display: block;
+    width: max-content;
+    padding: 0;
+    white-space: nowrap;
+    pointer-events: auto;
+    transform: rotate(var(--rot));
+    transform-origin: 6% 60%;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+  }
+
+  .noteName,
+  .note[data-highlight] .noteName {
+    display: inline;
+    color: #3b3427;
+    font-size: 21px;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+  }
+
+  /* 日期与名字同为实体，只是小一号 */
+  .noteTime {
+    display: inline;
+    margin-left: 10px;
+    color: #6c604b;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+  }
+
+  /* 展开层放在名字右侧，不放下方：散布之后上下只隔几十像素，
+     往下会盖住相邻项目，而且绝对定位保证悬停不引起任何位移。 */
+  .noteDetail {
+    position: absolute;
+    top: -3px;
+    left: calc(100% + 24px);
+    display: block;
+    width: 286px;
+    white-space: normal;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .note[data-flip] .noteDetail {
+    right: calc(100% + 24px);
+    left: auto;
+    text-align: right;
+  }
+
+  .noteEn {
+    display: block;
+    color: #8a7f6c;
+    font: 400 10.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: 0.08em;
+  }
+
+  .noteDescription,
+  .note[data-highlight] .noteDescription {
+    display: block;
+    margin-top: 3px;
+    color: #6f6350;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+  }
+
+  .noteStatus {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 1px 8px;
+    color: #54703c;
+    font: 500 10px/1.8 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: 0.06em;
+    background: rgb(95 130 80 / 13%);
+    border-radius: 99px;
+  }
+
+  .projectRoots:has(.note:hover) .note,
+  .projectRoots:has(.note:focus-visible) .note {
+    opacity: 0.12;
+  }
+
+  .projectRoots:has(.note:hover) .note:hover,
+  .projectRoots:has(.note:focus-visible) .note:focus-visible {
+    z-index: 3;
+    opacity: 1;
+    transform: rotate(calc(var(--rot) * 0.3)) translateY(-2px);
+  }
+
+  .note:hover .noteName,
+  .note:focus-visible .noteName,
+  .note[aria-current="page"] .noteName {
+    color: var(--clay);
+  }
+
+  .note:hover .noteDetail,
+  .note:focus-visible .noteDetail {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* 网格排布下的当前页下划线在散布里会挤开行，改成只靠颜色标记 */
+  .note[aria-current="page"]::after {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mailboxImage,
-  .mailboxLabel {
+  .mailboxLabel,
+  .note,
+  .noteDetail {
     transition: none;
   }
 

@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 
 import { PROJECTS } from "../content/projects";
 import { RichText } from "./RichText";
 import styles from "./ProjectShowcase.module.css";
 
 /**
- * 首屏下方的项目展示区。
+ * 项目展示区，住在 `/projects`（2026-09-09 前在首屏下方，靠滚动进入）。
  *
  * 为什么不是纯自动轮播：招聘方停留时间短，只给一个会自己走的舞台，等于逼人等。
- * 所以底部那条时间线始终列出全部七个项目——它既是「一眼看全貌」的索引，也是
+ * 所以底部那条时间线始终列出全部项目——它既是「一眼看全貌」的索引，也是
  * 走马灯的导航。舞台负责展示感，时间线负责信息完整。
  *
  * 自动播放遵守 PRODUCT.md 的动效原则：hover／focus／reduced-motion 下一律停，
@@ -18,7 +17,12 @@ import styles from "./ProjectShowcase.module.css";
 
 const AUTOPLAY_MS = 8000;
 
-export function ProjectShowcase() {
+interface ProjectShowcaseProps {
+  /** 打开项目详情。弹层由页面自己挂，见 ProjectsPage 的说明。 */
+  onOpenDetail: (projectId: string) => void;
+}
+
+export function ProjectShowcase({ onOpenDetail }: ProjectShowcaseProps) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [hovering, setHovering] = useState(false);
@@ -81,9 +85,8 @@ export function ProjectShowcase() {
       onKeyDown={onKeyDown}
     >
       <header className={styles.header}>
-        <p className={styles.eyebrow}>Projects · 七个项目</p>
-        {/* tabIndex 让首屏的「进入项目」能把焦点送到这里 */}
-        <h2 className={styles.heading} id={headingId} tabIndex={-1}>
+        <p className={styles.eyebrow}>Projects · {PROJECTS.length} 个项目</p>
+        <h2 className={styles.heading} id={headingId}>
           从同一套根系长出来
         </h2>
         <p className={styles.lead}>
@@ -140,9 +143,13 @@ export function ProjectShowcase() {
             ))}
           </ul>
 
-          <Link className={styles.detailLink} to={`/projects/${project.id}`}>
+          <button
+            className={styles.detailLink}
+            type="button"
+            onClick={() => onOpenDetail(project.id)}
+          >
             查看项目详情 <span aria-hidden="true">→</span>
-          </Link>
+          </button>
         </div>
       </div>
 

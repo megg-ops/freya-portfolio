@@ -112,10 +112,11 @@ export function ResumePage() {
                 <div className={styles.entry} key={entry.degree}>
                   <p className={styles.entryHead}>{entry.school}</p>
                   <p className={styles.entryMeta}>
-                    {entry.degree} · {entry.period}
+                    {entry.degree}
                   </p>
+                  <p className={styles.entryMeta}>{entry.period}</p>
                   <p className={styles.entryFacts}>
-                    {entry.facts.slice(0, 2).join(" · ")}
+                    {entry.facts.slice(0, 2).map((fact) => <span key={fact}>{fact}</span>)}
                   </p>
                 </div>
               ))}
@@ -156,7 +157,7 @@ export function ResumePage() {
 
               <h2 className={styles.blockTitle}>奖项</h2>
               <ul className={styles.awards}>
-                {AWARDS.slice(0, 3).map((award) => (
+                {AWARDS.slice(0, 4).map((award) => (
                   <li key={award}>{award}</li>
                 ))}
               </ul>
@@ -200,10 +201,6 @@ export function ResumePage() {
         </article>
       </div>
 
-      <p className={styles.note}>
-        学校按公开口径写为 985 / 211。需要完整履历或可下载的 PDF，
-        <Link to="/contact">来信</Link>告诉我。
-      </p>
     </main>
   );
 }

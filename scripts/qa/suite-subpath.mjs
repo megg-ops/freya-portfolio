@@ -38,7 +38,7 @@ async function open(path, wait = 3500) {
     cursorVar: getComputedStyle(document.documentElement).getPropertyValue('--butterfly-cursor'),
   }))()`);
   record("子路径首屏：树 idle + 柴犬 ready", s.tree === "idle" && s.shiba === "ready", `tree=${s.tree} shiba=${s.shiba}`);
-  record("子路径首屏：7 个根系入口", s.roots === 7, "count=" + s.roots);
+  record("子路径首屏：6 个根系入口", s.roots === 6, "count=" + s.roots);
   record("路由链接带 base 前缀", (s.firstHref ?? "").startsWith("/freya-portfolio/projects/"), s.firstHref);
   record("图片路径带 base 前缀", (s.figureSrc ?? "").startsWith("/freya-portfolio/assets/"), s.figureSrc);
   record("蝴蝶指针 CSS 变量带 base 前缀", s.cursorVar.includes("/freya-portfolio/assets/ui/"), s.cursorVar.trim());
@@ -49,7 +49,7 @@ async function open(path, wait = 3500) {
 }
 
 for (const [path, expect, name] of [
-  ["/projects/solopr", "SoloPR", "项目深链接"],
+  ["/projects/solopr", "Solo Brand", "项目深链接"],
   ["/resume", "Freya", "履历深链接"],
   ["/contact", "信箱就挂在树下", "联系深链接"],
 ]) {

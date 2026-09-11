@@ -101,7 +101,7 @@ const OVERFLOW = `(() => ({
     resumeHref: document.querySelector('a[href="/resume"]')?.getAttribute('href'),
     contactHref: document.querySelector('a[href="/contact"]')?.getAttribute('href'),
   }))()`);
-  record("首屏 1440：7 个根系入口", state.roots.length === 7, state.roots.join(","));
+  record("首屏 1440：6 个根系入口", state.roots.length === 6, state.roots.join(","));
   record("首屏 1440：4 个亮点项目", state.highlights.length === 4, state.highlights.join(","));
   record("首屏 1440：树进入 idle", state.tree === "idle", "tree=" + state.tree);
   record("首屏 1440：柴犬进入 ready", state.shiba === "ready", "shiba=" + state.shiba);
@@ -133,7 +133,7 @@ const OVERFLOW = `(() => ({
     };
   })()`);
   record("深链接刷新 /projects/jinnang-l10n 直接打开详情", detail.found === true, detail.title ?? "");
-  const need = ["问题与用户", "我的角色", "关键产品决策", "工作流程", "成果", "实际边界", "证据入口"];
+  const need = ["要解决的问题", "给谁用", "关键决策与取舍", "方案如何落地", "结果与待验证", "下一步验证与迭代", "技术栈", "链接"];
   const missing = need.filter((h) => !detail.headings?.includes(h));
   record("详情包含全部要求板块", missing.length === 0, missing.join(",") || "全部存在");
   record("详情为可访问弹层 aria-modal+labelledby", detail.modal === "true" && detail.labelled);
@@ -223,6 +223,7 @@ const OVERFLOW = `(() => ({
         return Math.round(Math.asin(Math.min(1, Math.max(-1, -m.m31))) * 180 / Math.PI);
       }),
       panelOverflow: panels.map(p => p.firstElementChild.scrollHeight - p.firstElementChild.clientHeight),
+      contentContained: panels.every(p => p.firstElementChild.lastElementChild.getBoundingClientRect().bottom <= p.getBoundingClientRect().bottom),
       projectLinks: document.querySelectorAll('a[href^="/projects/"]').length,
       awards: document.querySelectorAll('article ul')[1]?.children.length ?? 0,
       hasName: document.body.innerText.includes('湖南大学') || document.body.innerText.includes('中南财经'),
@@ -234,9 +235,9 @@ const OVERFLOW = `(() => ({
   record("履历是三折页结构", r.panels === 3, "panels=" + r.panels);
   record("折页展开到位（两翼旋转归零）", r.opened === "true" && r.wingRotations.every((d) => Math.abs(d) <= 1), r.wingRotations.join(","));
   record("三个面板都不溢出", r.panelOverflow.every((v) => v <= 0), r.panelOverflow.join(","));
-  record("整张纸一屏装得下，不用滚动", r.docH <= r.vh, `docH=${r.docH} vh=${r.vh}`);
-  record("履历项目链接指向真实详情", r.projectLinks === 7, "count=" + r.projectLinks);
-  record("履历列出奖项", r.awards === 3, "count=" + r.awards);
+  record("折页随内容延展，末项未被裁切", r.contentContained, `docH=${r.docH} vh=${r.vh}`);
+  record("履历项目链接指向真实详情", r.projectLinks === 6, "count=" + r.projectLinks);
+  record("履历列出四项奖项（含学业奖学金）", r.awards === 4, "count=" + r.awards);
   record("履历未泄露学校全名", r.hasName === false);
   const of = await evalJs(page, OVERFLOW);
   record("履历 1440：无横向溢出", of.h <= 0, `h=${of.h}`);
@@ -297,11 +298,14 @@ const OVERFLOW = `(() => ({
     heading: document.querySelector('h1')?.textContent.trim(),
     world: document.documentElement.dataset.world,
     projects: document.querySelectorAll('a[href^="/projects/"]').length,
+    stars: document.querySelectorAll('[aria-haspopup="dialog"]').length,
     back: !!document.querySelector('a[href="/"]'),
   }))()`);
   record("/stars 深链接可直接打开", !!stars.heading, stars.heading);
   record("星夜标记 data-world=stars", stars.world === "stars", "world=" + stars.world);
-  record("星夜与日光共用同一份项目数据", stars.projects === 7, "count=" + stars.projects);
+  // PRODUCT.md：两种模式各担一件事，星夜讲过程，不重复日光的项目成品清单。
+  record("星夜不重复日光的项目清单", stars.projects === 0, "projects=" + stars.projects);
+  record("星夜呈现 9 颗可点开的星", stars.stars === 9, "stars=" + stars.stars);
   record("星夜可回到日光", stars.back === true);
   const of = await evalJs(page, OVERFLOW);
   record("星夜 1440：无横向溢出", of.h <= 0, `h=${of.h}`);

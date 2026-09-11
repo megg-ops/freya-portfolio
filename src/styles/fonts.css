@@ -1,0 +1,35 @@
+/**
+ * 项目名专用字体：行楷（Ma Shan Zheng，马善政毛笔楷书，OFL 可商用）。
+ *
+ * 为什么要打包：行楷不是任何系统的自带字体——Windows 只有楷体（KaiTi），
+ * macOS 也没有，不打包就会静默回退成默认字体，等于没换。打包之后，
+ * 手机、平板、电脑看到的是同一套字。
+ *
+ * 字库只裁了六个项目名用到的 24 个字，11.6 KB。完整 CJK 字库十几 MB，
+ * 不可能随站发出去。
+ *
+ * ⚠️ 改项目名 = 必须重裁字库，否则新字会静默掉回默认字体。重裁方式：
+ *   1. 把六个项目名的全部字符去重排序，得到 <TEXT>
+ *   2. curl -A "<桌面浏览器 UA>" \
+ *        "https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&text=<urlencode(TEXT)>"
+ *      取出返回 CSS 里的 woff2 地址
+ *   3. 下载覆盖 src/assets/fonts/ma-shan-zheng-subset.woff2
+ * 当前字库覆盖：一人作写出台品囊她妹姊实得愈投柴海牌的节证过部锦
+ *
+ * 只用于项目「名字」。一句话、日期、正文都仍走站点主字体——
+ * 行楷做长句和数字会明显掉可读性。
+ */
+@font-face {
+  font-family: "Xingkai Subset";
+  font-style: normal;
+  font-weight: 400;
+  /* 字库只有名字要用的那几个字，回退期间闪烁很显眼，所以用 block 等它 */
+  font-display: block;
+  src: url("../assets/fonts/ma-shan-zheng-subset.woff2") format("woff2");
+}
+
+:root {
+  /* 项目名统一走这个 token，不要在组件里各写各的字体栈 */
+  --font-project: "Xingkai Subset", "STXingkai", "华文行楷", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", "Microsoft YaHei", serif;
+}

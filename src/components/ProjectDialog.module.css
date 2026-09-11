@@ -13,7 +13,7 @@
 
 .panel {
   position: relative;
-  width: min(880px, 100%);
+  width: min(1040px, 100%);
   max-height: 95vh;
   padding: 46px clamp(22px, 4vw, 54px) 30px;
   overflow-y: auto;
@@ -25,7 +25,6 @@
   border: 1px solid rgb(95 130 80 / 26%);
   border-bottom: 0;
   border-radius: 16px 16px 0 0;
-  box-shadow: 0 -18px 48px rgb(60 66 50 / 18%);
   animation: rise 0.34s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -50,7 +49,39 @@
 }
 
 .header {
-  max-width: 62ch;
+  min-width: 0;
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: 30px;
+  clear: both;
+  padding-top: 18px;
+}
+
+.quickLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0;
+  margin: 18px 0 0;
+  list-style: none;
+}
+
+.quickLinks a {
+  display: inline-block;
+  padding: 10px 16px;
+  color: #fff;
+  background: #456238;
+  border-radius: 6px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.quickLinks a:hover {
+  background: #344c2a;
 }
 
 .eyebrow {
@@ -73,6 +104,7 @@
 }
 
 .title {
+  font-family: var(--font-project);
   margin: 0 0 8px;
   font-size: clamp(28px, 4vw, 38px);
   font-weight: 400;
@@ -80,7 +112,7 @@
   letter-spacing: 0.02em;
 }
 
-.tagline {
+.enName {
   margin: 0 0 20px;
   color: #7a6d59;
   font: 400 13.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -89,52 +121,56 @@
 
 .summary {
   margin: 0;
-  padding-left: 16px;
-  color: #4a5043;
-  font-size: 16px;
-  line-height: 2;
+  padding: 18px 20px;
+  color: #35482f;
+  font-size: 17px;
+  line-height: 1.85;
   letter-spacing: 0.03em;
-  border-left: 2px solid rgb(95 130 80 / 38%);
+  background: #e6eddc;
+  border-radius: 8px;
   text-wrap: pretty;
 }
 
 .cover {
   display: block;
+  /* 面板加宽后封面会独占一屏，限一下宽度让它回到配图的位置。 */
   width: 100%;
+  max-width: 760px;
   height: auto;
-  margin: 30px 0 6px;
+  margin: 0;
   border: 1px solid rgb(95 130 80 / 20%);
   border-radius: 10px;
 }
 
 .body {
   display: grid;
-  gap: 30px;
-  margin-top: 34px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px;
+  margin-top: 44px;
 }
 
-.section,
-.boundarySection {
+.section {
+  min-width: 0;
   max-width: 68ch;
 }
 
-.boundarySection {
-  padding: 18px 20px 4px;
-  background: rgb(184 115 74 / 7%);
-  border-left: 2px solid rgb(184 115 74 / 46%);
-  border-radius: 0 8px 8px 0;
+/* 图形化区块按面板宽度铺开，行宽限制只管连续正文。 */
+.section:has(> .stack),
+.section:has(> .cards),
+.flowSection {
+  max-width: none;
 }
 
 .sectionTitle {
-  margin: 0 0 12px;
-  color: #4f7344;
-  font: 500 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  letter-spacing: 0.2em;
+  margin: 0 0 20px;
+  color: #303c2b;
+  font-size: 24px;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
 }
 
-.boundarySection .sectionTitle {
-  color: #96603c;
-}
 
 .paragraph {
   margin: 0;
@@ -149,75 +185,169 @@
   text-underline-offset: 3px;
 }
 
-.list {
+.split {
   display: grid;
-  gap: 12px;
+  gap: 30px;
+}
+
+.column {
+  display: grid;
+  gap: 30px;
+  align-content: start;
+}
+
+/* 左栏叙事 + 流程，右栏卡片栈；两栏都从顶端起算，不拉伸。 */
+@media (min-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: 38px;
+    align-items: start;
+  }
+}
+
+.aside {
+  padding: 20px 22px;
+  background: #e6eddc;
+  border-radius: 8px;
+}
+
+.aside .sectionTitle {
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.aside .paragraph {
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+
+/* 取舍 / 结果 / 后续：卡片网格，标题在前，原说明完整保留在后。 */
+.cards {
+  display: grid;
+  gap: 0;
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
-.list li {
-  position: relative;
-  padding-left: 20px;
-  font-size: 15.5px;
-  line-height: 1.95;
+.card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 0.8fr) minmax(0, 1.8fr);
+  gap: 12px 18px;
+  padding: 18px 0;
+  border-top: 1px solid rgb(95 130 80 / 22%);
+}
+
+/* 没有小标题的条目，说明紧随标记占满剩余宽度，不留空标题列 */
+.cardDescWide {
+  grid-column: 2 / -1;
+}
+
+.cardMark {
+  color: #8a9179;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+}
+
+.cards[data-tone="outcome"] .cardMark {
+  color: #a06a3b;
+}
+
+.section[data-tone="decision"] {
+  padding: 26px;
+  background: #e6eddc;
+  border-radius: 10px;
+}
+
+.cards[data-tone="outcome"] .cardTitle {
+  color: #754727;
+}
+
+.cardTitle {
+  margin: 0 0 5px;
+  color: #303c2b;
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.5;
   letter-spacing: 0.03em;
+}
+
+.cardDesc {
+  margin: 0;
+  color: #5b6353;
+  font-size: 15px;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
   text-wrap: pretty;
 }
 
-.list li::before {
-  position: absolute;
-  top: 0.82em;
-  left: 3px;
-  width: 5px;
-  height: 5px;
-  content: "";
-  background: rgb(95 130 80 / 62%);
-  border-radius: 50%;
-}
-
-.boundarySection .list li::before {
-  background: rgb(184 115 74 / 62%);
-}
-
-.list strong {
-  font-weight: 600;
+.cardDesc strong {
   color: #3f5438;
+  font-weight: 600;
 }
 
-.boundarySection .list strong {
-  color: #8a552f;
+/* 技术栈：层名当行首标签，构件横向铺开。只是排版，不画流程。 */
+.stack {
+  display: grid;
+  gap: 10px;
+  margin: 0;
 }
 
-.chips,
-.evidence {
+.layer {
+  display: grid;
+  grid-template-columns: 4.5em minmax(0, 1fr);
+  gap: 6px 14px;
+  align-items: baseline;
+}
+
+.layerLabel {
+  color: #7a6d59;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+.nodes {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 0;
+  gap: 7px;
   margin: 0;
-  list-style: none;
 }
 
-.chips li {
-  padding: 5px 11px;
+.node {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 4px 10px;
   color: #5c6552;
-  font: 400 12.5px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font: 400 12.5px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.04em;
-  background: rgb(255 255 255 / 70%);
-  border: 1px solid rgb(95 130 80 / 26%);
+  background: rgb(255 255 255 / 66%);
+  border: 1px solid rgb(95 130 80 / 24%);
   border-radius: 3px;
 }
 
+/* 结构图给足横向空间，并按面板宽度居中 */
+.flowSection {
+  padding: 26px 0 4px;
+  border-top: 1px solid rgb(95 130 80 / 18%);
+}
+
 .evidence {
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .evidence a {
   display: inline-flex;
   gap: 8px;
   align-items: baseline;
+  flex-wrap: wrap;
+  overflow-wrap: anywhere;
   padding: 9px 15px;
   color: #40573a;
   font-size: 14.5px;
@@ -234,7 +364,7 @@
 }
 
 .evidenceHint {
-  color: #8b8574;
+  color: #655e50;
   font: 400 11px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   letter-spacing: 0.1em;
 }
@@ -284,6 +414,37 @@
 }
 
 @media (max-width: 760px) {
+  .intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 12px;
+  }
+
+  .cardMark {
+    grid-row: 1;
+  }
+
+  .cardTitle {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  .cardDesc,
+  .cardDescWide {
+    grid-column: 2;
+  }
+
+  .sectionTitle {
+    font-size: 22px;
+  }
+
+  .section[data-tone="decision"] {
+    padding: 20px;
+  }
   .scrim {
     padding: 3vh 0 0;
   }
@@ -295,14 +456,14 @@
   }
 
   .summary,
-  .paragraph,
-  .list li {
+  .paragraph {
     font-size: 14.5px;
     line-height: 1.9;
   }
 
-  .boundarySection {
-    padding: 15px 15px 3px;
+  .layer {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
   }
 }
 

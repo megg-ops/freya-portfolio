@@ -27,8 +27,7 @@ export function ContactPage() {
   return (
     <PaperPage
       eyebrow="Mailbox · 来信"
-      title="信箱就挂在树下"
-      lead="目前没有站内留言表单——与其做一个只弹出「发送成功」却送不到我手上的表单，不如给你一个真的能收到的地址。"
+      title="信箱"
     >
       <div className={styles.grid}>
         <section className={styles.primary} aria-labelledby="contact-mail">
@@ -38,7 +37,7 @@ export function ContactPage() {
           <p className={styles.address}>{CONTACT.email}</p>
           <div className={styles.actions}>
             <a className={styles.button} href={mailtoHref}>
-              打开你的邮件应用
+              打开邮件应用
             </a>
             <button className={styles.ghost} type="button" onClick={copyEmail}>
               复制邮箱地址
@@ -50,10 +49,6 @@ export function ContactPage() {
               : copyState === "failed"
                 ? "浏览器拒绝了复制操作，请手动选中上面的地址。"
                 : ""}
-          </p>
-          <p className={styles.hint}>
-            「打开你的邮件应用」会用你设备上的默认邮件客户端新建一封草稿，并预填收件人与主题。
-            如果你的设备没有配置邮件客户端，这个按钮不会有反应——那就用右边的复制按钮。
           </p>
         </section>
 
@@ -73,9 +68,6 @@ export function ContactPage() {
               </a>
             </li>
           </ul>
-          <p className={styles.hint}>
-            部分项目没有公开仓库或线上入口。想看具体实现、产物或完整材料，写信告诉我要看哪一个，我单独发给你。
-          </p>
         </section>
       </div>
     </PaperPage>

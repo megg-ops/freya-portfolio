@@ -28,6 +28,9 @@ NO_PROXY=127.0.0.1,localhost no_proxy=127.0.0.1,localhost \
 | `npm run qa:layout` | 版式几何断言。六档视口下断言文案与人物矩形不相交、树顶 ≥0 且完整落在视口内、柴犬与树干水平间距、信箱宽度区间、无横向溢出 |
 | `npm run qa:subpath` | 子路径部署验收，需先起模拟器（见下） |
 | `npm run qa:perf` | 首次加载传输量与「树 idle + 柴犬 ready」耗时 |
+| `npm run qa:stars` | 星夜营地：四档视口、9 个星点、短笺焦点循环与归还、流星绘制与消散、静止开关、减少动态效果、路由往返 |
+
+星夜验收使用 `launch(port, { finePointer: true })` 显式配置桌面精细指针；无头浏览器默认是 `pointer: none`。触屏模拟后新建桌面 target，避免关闭触屏模拟时恢复成 `pointer: none`。截图位于 `.qa-shots/stars-*.png`。
 
 `qa:layout` 默认打 `QA_BASE`；开发时想打 dev server 就 `QA_BASE=http://127.0.0.1:5173 npm run qa:layout`。
 

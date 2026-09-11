@@ -42,7 +42,7 @@ function findChrome() {
   return candidates.find((path) => existsSync(path)) ?? null;
 }
 
-export async function launch(port = 9333) {
+export async function launch(port = 9333, { finePointer = false } = {}) {
   // 并行会话（比如另一个 worktree 里的 agent 同时跑 QA）会撞端口，
   // 用 QA_PORT_OFFSET 整体挪开即可。
   port += Number(process.env.QA_PORT_OFFSET ?? 0);
@@ -64,6 +64,8 @@ export async function launch(port = 9333) {
       "--force-device-scale-factor=1",
       // 本机有 HTTP 代理，不绕开的话连不上回环地址
       "--no-proxy-server",
+      // Headless defaults to pointer:none; explicitly emulate desktop hardware when needed.
+      ...(finePointer ? ["--blink-settings=primaryPointerType=4,availablePointerTypes=4,primaryHoverType=2,availableHoverTypes=2"] : []),
       "about:blank",
     ],
     { stdio: ["ignore", "ignore", "pipe"] },

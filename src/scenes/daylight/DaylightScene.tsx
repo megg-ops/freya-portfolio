@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, type CSSProperties } from "react";
 import { Link, useMatch, useNavigate } from "react-router-dom";
 
 import { useSiteStore } from "../../app/store";
 import { ProjectDialog } from "../../components/ProjectDialog";
-import { ProjectShowcase } from "../../components/ProjectShowcase";
+import { PROFILE } from "../../content/profile";
 import { PROJECTS, PROJECT_MAP } from "../../content/projects";
 import { asset } from "../../lib/asset";
 import { NotFoundPage } from "../../pages/NotFoundPage";
@@ -11,6 +11,32 @@ import { ACTIVE_SEASON, SEASON_ASSETS } from "./season-assets";
 import { Shiba } from "./Shiba";
 import { Tree } from "./Tree";
 import styles from "./DaylightScene.module.css";
+
+/**
+ * 首屏根系的散布位置。x / y 是占 `.hero`（100vh 满屏）宽高的百分比，rot 是倾斜角。
+ * 早的在下、新的在上——对应「生长」，与 PROJECTS 的时间升序一致。
+ * 同一个月的两个项目落在同一高度带，所以是四档而不是六级，形状因此不齐整。
+ * `flip` 表示悬停展开层放到名字左边（靠右的项目往右会顶出画面）。
+ *
+ * 只在「宽屏 + 有鼠标」时生效，见 DaylightScene.module.css 末尾的 media query；
+ * 触屏与窄屏走的仍是原来那排常显的网格（用户 2026-09-07 裁定：
+ * 触屏点进去有插图，不该退化成只有一行英文名和一句话）。
+ */
+/** 首屏那句自述里的项目数跟着 PROJECTS 走，避免再出现写死的「七个项目」。 */
+const CN_NUMERAL = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"];
+const PROJECT_COUNT_CN = CN_NUMERAL[PROJECTS.length] ?? String(PROJECTS.length);
+
+const ROOT_LAYOUT: Record<
+  string,
+  { x: string; y: string; rot: string; flip?: boolean }
+> = {
+  ready2apply: { x: "22.4%", y: "92.4%", rot: "-2.8deg" },
+  "empirical-paper": { x: "38.6%", y: "88.9%", rot: "2.3deg" },
+  chaiyu: { x: "59.2%", y: "87.3%", rot: "-1.6deg" },
+  solopr: { x: "31.1%", y: "82.7%", rot: "3.4deg" },
+  "jinnang-l10n": { x: "52.8%", y: "78%", rot: "-2.2deg" },
+  "sisters-festival": { x: "72.6%", y: "76%", rot: "3.8deg", flip: true },
+};
 
 export function DaylightScene() {
   const season = useSiteStore((state) => state.season);
@@ -29,8 +55,8 @@ export function DaylightScene() {
 
   /**
    * 关闭详情后把焦点还给「当初点开它的那个元素」，而不是按 id 去找首屏的
-   * 根系入口——详情现在可以从首屏根系或下方走马灯两处打开，按 id 找会把
-   * 从走马灯进来的访客一路弹回页面顶部。
+   * 根系入口——深链直接进来时页面上并没有对应的根系节点被点过，按 id 找
+   * 会把焦点塞到一个访客从没碰过的地方。
    *
    * 触发元素必须在**渲染期**捕获：子组件的 effect 先于父组件执行，等到父
    * effect 跑的时候，弹层已经把焦点移进去了。
@@ -71,19 +97,6 @@ export function DaylightScene() {
     pendingFallbackRef.current = null;
     if (fallbackId) document.getElementById(fallbackId)?.focus();
   }, [activeProject]);
-
-  /** 「进入项目」送访客去下面的展示区，并把焦点一起带过去。 */
-  const enterProjects = () => {
-    const section = document.getElementById("projects");
-    if (!section) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    section.scrollIntoView({
-      behavior: reduce ? "auto" : "smooth",
-      block: "start",
-    });
-    const heading = section.querySelector("h2");
-    if (heading instanceof HTMLElement) heading.focus({ preventScroll: true });
-  };
 
   if (unknownProject) return <NotFoundPage />;
 
@@ -174,22 +187,43 @@ export function DaylightScene() {
       </div>
 
       <nav id="project-roots" className={styles.projectRoots} aria-label="项目根系">
-        {PROJECTS.map((project) => (
-          <Link
-            id={project.id}
-            className={styles.note}
-            key={project.id}
-            to={`/projects/${project.id}`}
-            data-highlight={project.highlight ? "true" : undefined}
-            aria-current={projectId === project.id ? "page" : undefined}
-          >
-            <span className={styles.noteName}>{project.name}</span>
-            <time className={styles.noteTime} dateTime={project.dateTime}>
-              {project.dateLabel}
-            </time>
-            <span className={styles.noteDescription}>{project.tagline}</span>
-          </Link>
-        ))}
+        {PROJECTS.map((project) => {
+          const layout = ROOT_LAYOUT[project.id];
+          return (
+            <Link
+              id={project.id}
+              className={styles.note}
+              key={project.id}
+              to={`/projects/${project.id}`}
+              data-highlight={project.highlight ? "true" : undefined}
+              data-flip={layout?.flip ? "true" : undefined}
+              aria-current={projectId === project.id ? "page" : undefined}
+              style={
+                layout
+                  ? ({
+                      "--x": layout.x,
+                      "--y": layout.y,
+                      "--rot": layout.rot,
+                    } as CSSProperties)
+                  : undefined
+              }
+            >
+              <span className={styles.noteName}>{project.name}</span>
+              <time className={styles.noteTime} dateTime={project.dateTime}>
+                {project.dateLabel}
+              </time>
+              {/* 宽屏上这一层收进悬停；触屏与窄屏里 display:contents，
+                  只留一行定位，与改版前一致 */}
+              <span className={styles.noteDetail}>
+                <span className={styles.noteEn}>{project.enName}</span>
+                <span className={styles.noteDescription}>{project.tagline}</span>
+                {project.status ? (
+                  <span className={styles.noteStatus}>{project.status}</span>
+                ) : null}
+              </span>
+            </Link>
+          );
+        })}
       </nav>
 
       <div className={styles.figureShadow} />
@@ -219,15 +253,15 @@ export function DaylightScene() {
         <h1 className={styles.name}>
           Freya<span className={styles.dot}>.</span>
         </h1>
-        <div className={styles.role}>AI 应用 / 大模型应用开发</div>
+        <div className={styles.role}>{PROFILE.role}</div>
         <p className={styles.intro}>
           我把模糊的需求，种成<em>可以验证的东西</em>。<br />
-          七个项目从同一套根系长出来，按时间从左往右。
+          {PROJECT_COUNT_CN}个项目从同一套根系长出来，按时间先后排开。
         </p>
         <div className={styles.actions}>
-          <button className={styles.button} type="button" onClick={enterProjects}>
+          <Link className={styles.button} to="/projects">
             进入项目
-          </button>
+          </Link>
           <Link className={`${styles.button} ${styles.ghost}`} to="/resume">
             查看履历
           </Link>
@@ -263,8 +297,6 @@ export function DaylightScene() {
       </svg>
 
     </main>
-
-    <ProjectShowcase />
 
     {/* 弹层放在 main 之外：它要盖住整页，而不只是首屏那一屏 */}
     {activeProject ? (

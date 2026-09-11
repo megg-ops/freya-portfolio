@@ -7,6 +7,7 @@ import { asset } from "./lib/asset";
 import "./styles/reset.css";
 import "./styles/tokens.css";
 import "./styles/seasons.css";
+import "./styles/fonts.css";
 import "./styles/globals.css";
 
 // CSS 里的 url() 绝对路径不会被 Vite 按 base 改写，蝴蝶指针改由这里注入。

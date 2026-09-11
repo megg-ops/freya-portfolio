@@ -1,70 +1,112 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-
-import { PROJECTS } from "../../content/projects";
+import { asset } from "../../lib/asset";
+import { useFocusTrap } from "../../components/useFocusTrap";
+import { MeteorTrail } from "./MeteorTrail";
+import { MeteorShower } from "./MeteorShower";
+import { GALAXIES, type StarNote } from "./night-notes";
 import styles from "./StarnightScene.module.css";
 
-/**
- * 星夜模式 —— 占位实现，等待填充。
- *
- * ## 这个文件的边界
- *
- * 星夜模式的全部实现都应该落在 `src/scenes/starnight/` 内。路由、模式切换、
- * 全局状态这三处接缝已经在别处铺好了，**不需要也不应该再去改它们**：
- *
- * - 路由 `/stars` 已在 `src/app/App.tsx` 注册
- * - 首屏右上角的日光／星夜切换已经能双向跳转
- * - `useSiteStore` 的 `world` 字段可用（`"daylight" | "stars"`）
- *
- * 这样安排是为了让星夜模式能和首屏、履历的改动并行推进而不产生 JSX 冲突。
- *
- * ## 内容从哪来
- *
- * 复用 `src/content/projects.ts`——它是全站唯一的项目内容源，日光首屏、
- * 项目详情弹层、走马灯展板、履历都从它取数。星夜模式**不要另建一份项目数据**，
- * 否则事实口径会漂移。每个项目已有 `dateTime` 可用于时间线排序、`highlight`
- * 可用于区分主次。
- *
- * ## 验收要求（来自 PLAN.md P1）
- *
- * - 要有区别于日光的探索布局，不能只是换个深色背景加星点
- * - 支持文本导航与键盘可达
- * - `prefers-reduced-motion` 下不做持续运动
- * - 与日光共用同一份内容数据
- */
+// Decorative spiral dust; accessible HTML buttons carry all interactions.
+function GalaxyDust({ id }: { id: string }) {
+  return <svg className={styles.dust} viewBox="0 0 320 220" aria-hidden="true">
+    <defs><radialGradient id={`halo-${id}`}><stop stopColor="currentColor" stopOpacity=".15" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></radialGradient></defs>
+    <ellipse cx="160" cy="107" rx="145" ry="90" fill={`url(#halo-${id})`} />
+    {Array.from({ length: 220 }, (_, i) => {
+      const t = (i % 110) / 110;
+      const angle = t * Math.PI * 3.3 + (i >= 110 ? Math.PI : 0);
+      const radius = 8 + t * 125;
+      return <circle key={i} cx={160 + Math.cos(angle) * radius + Math.sin(i * 127.1) * 8}
+        cy={107 + Math.sin(angle) * radius * .49 + Math.cos(i * 43.7) * 7}
+        r={i % 11 === 0 ? 1.15 : .65} fill="currentColor" opacity={.15 + (1 - t) * .42} />;
+    })}
+    <path className={styles.connection} d="M 55 125 L 156 64 L 263 119" />
+  </svg>;
+}
+
 export function StarnightScene() {
+  const [selected, setSelected] = useState<StarNote | null>(null);
+  const [visited, setVisited] = useState<Set<string>>(() => new Set());
+  const [showNames, setShowNames] = useState(false);
+  const [still, setStill] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     document.documentElement.dataset.world = "stars";
-    return () => {
-      delete document.documentElement.dataset.world;
-    };
+    return () => { delete document.documentElement.dataset.world; };
   }, []);
-
-  return (
-    <main className={styles.scene}>
-      <div className={styles.inner}>
-        <p className={styles.eyebrow}>Starnight · 星夜</p>
-        <h1 className={styles.title}>这片天还没亮起来</h1>
-        <p className={styles.lead}>
-          星夜模式正在建设中。它会用一套区别于日光的探索式版式呈现同样这些项目，
-          而不是给白天的页面换个深色背景。
-        </p>
-
-        <ul className={styles.list}>
-          {PROJECTS.map((project) => (
-            <li key={project.id}>
-              <Link to={`/projects/${project.id}`}>
-                <span className={styles.name}>{project.name}</span>
-                <time dateTime={project.dateTime}>{project.dateLabel}</time>
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        <Link className={styles.back} to="/">
-          <span aria-hidden="true">←</span> 回到日光
-        </Link>
+  useEffect(() => {
+    if (selected && dialogRef.current && !dialogRef.current.open) dialogRef.current.showModal();
+  }, [selected]);
+  function openNote(note: StarNote, trigger: HTMLElement) {
+    triggerRef.current = trigger;
+    setVisited((previous) => new Set(previous).add(note.id));
+    setSelected(note);
+  }
+  const closeNote = useCallback(() => {
+    dialogRef.current?.close();
+    setSelected(null);
+    triggerRef.current?.focus({ preventScroll: true });
+  }, []);
+  useFocusTrap(dialogRef, closeNote, selected !== null);
+  return <main className={styles.scene} data-still={still} data-names={showNames}>
+    <img className={styles.landscape} src={asset("assets/night-campsite-v1.webp")}
+      alt="星空下的露营车亮着暖灯，女孩在椅子上看星星，柴犬蜷睡在脚边。"
+      fetchPriority="high" onError={() => setImageFailed(true)} />
+    <div className={styles.shade} aria-hidden="true" />
+    <MeteorShower paused={still || selected !== null} />
+    <MeteorTrail paused={still || selected !== null} />
+    <header className={styles.header}>
+      <Link className={styles.brand} to="/" aria-label="Freya，回到日光首页">Freya<span>夜间营地</span></Link>
+      <Link className={styles.daylight} to="/"><span aria-hidden="true">☼</span> 回到日光</Link>
+    </header>
+    <div className={styles.intro}>
+      <p className={styles.chapter}>今晚，停在这里。</p>
+      <h1>还有一些想法，<br />留给星空。</h1>
+      <p className={styles.invitation}>点亮一颗星，拾起一段灵感。</p>
+    </div>
+    <section className={styles.sky} aria-label="探索星系">
+      {GALAXIES.map((galaxy) => <section className={styles.galaxy} key={galaxy.id}
+        aria-labelledby={`galaxy-${galaxy.id}`} style={{ "--galaxy-color": galaxy.color } as CSSProperties}>
+        <h2 id={`galaxy-${galaxy.id}`} className={styles.galaxyName}>{galaxy.name}<span>{galaxy.subtitle}</span></h2>
+        <div className={styles.orbit}>
+          <GalaxyDust id={galaxy.id} />
+          {galaxy.notes.map((note, i) => <button key={note.id} type="button" className={styles.star}
+            style={{ left: `${[55, 156, 263][i] / 3.2}%`, top: `${[125, 64, 119][i] / 2.2}%`, "--delay": `${i * -.9}s` } as CSSProperties}
+            aria-label={`${note.title}，${galaxy.name}${visited.has(note.id) ? "，已探索" : ""}`}
+            aria-haspopup="dialog" data-visited={visited.has(note.id)}
+            onClick={(event) => openNote(note, event.currentTarget)}>
+            <span className={styles.starLight} aria-hidden="true" /><span className={styles.starLabel}>{note.title}</span>
+          </button>)}
+        </div>
+      </section>)}
+    </section>
+    <footer className={styles.footer}>
+      <div className={styles.footnote}><span className={styles.location}>山野之间 · 不急着抵达</span>
+        <span>已拾起 {visited.size} / 9 颗星</span>
+        {imageFailed && <span role="status">营地插画暂未加载，星系仍可探索。</span>}
       </div>
-    </main>
-  );
+      <div className={styles.controls}>
+        <button type="button" aria-pressed={showNames} onClick={() => setShowNames(!showNames)}>星名{showNames ? "已展开" : "导览"}</button>
+        <button type="button" aria-pressed={still} onClick={() => setStill(!still)}>{still ? "让星光流动" : "让星空静下来"}</button>
+      </div>
+    </footer>
+    <dialog className={styles.note} ref={dialogRef} aria-labelledby="night-note-title"
+      onCancel={(event) => { event.preventDefault(); closeNote(); }}
+      onClick={(event) => {
+        if (event.target !== event.currentTarget) return;
+        const r = event.currentTarget.getBoundingClientRect();
+        if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) closeNote();
+      }}>
+      <button type="button" className={styles.close} onClick={closeNote} aria-label="收起短笺，回到星空">×</button>
+      <span className={styles.noteStar} aria-hidden="true">✦</span>
+      <p className={styles.noteCategory}>{selected?.category}
+        {selected ? <> · <time dateTime={selected.dateTime}>{selected.time}</time></> : null}</p>
+      <h2 id="night-note-title">{selected?.title}</h2>
+      <p className={styles.noteVenue}>{selected?.venue}</p>
+      <p className={styles.noteBody}>{selected?.body}</p>
+      <button type="button" className={styles.return} onClick={closeNote}>收好这张短笺，继续看星星 <span aria-hidden="true">↗</span></button>
+    </dialog>
+  </main>;
 }

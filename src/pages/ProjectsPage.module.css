@@ -1,0 +1,24 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-paper);
+}
+
+/* 返回条的底色取 .showcase 顶部渐变的起点色，两块之间不留接缝。 */
+.bar {
+  padding: clamp(20px, 3.5vh, 40px) clamp(20px, 6vw, 88px) 0;
+  background: #f3efe4;
+}
+
+.back {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  color: #5f8250;
+  font: 500 12.5px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--color-clay);
+}
