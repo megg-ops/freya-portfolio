@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>方案三效果图 · 首屏撤目录，项目区接住入口</title>
+<style>
+:root{
+  --paper:#f7f4ec; --sky:#eef3e4; --soil:#e7decb; --soil-deep:#dcd0b8; --soil-end:#d2c4a8;
+  --ink:#33372e; --ink-muted:#6b7263; --green:#5f8250; --clay:#b8734a;
+  --name:#3c4136; --time:#8b725b; --desc:#6b7263; --meta:#8a7f6c;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#e6e0d2;color:var(--ink);
+  font:400 14px/1.6 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.page{padding:26px 22px 70px;max-width:1520px;margin:0 auto}
+h1{font-size:20px;font-weight:600;letter-spacing:.04em;margin:0 0 4px}
+.sub{color:var(--ink-muted);font-size:13px;line-height:1.75;margin:0 0 18px;max-width:92ch}
+.tagline{display:inline-block;padding:2px 9px;border-radius:99px;background:#e2ecd8;color:#4d6b3f;
+  font:500 11px/1.7 var(--mono);letter-spacing:.06em;margin-left:6px}
+.shell{border-radius:12px;overflow:hidden;box-shadow:0 10px 34px rgb(60 50 30 / 14%);background:#fff}
+.fit{width:100%;overflow:hidden}
+.frame{width:1440px;transform-origin:0 0;position:relative}
+
+/* ========== 首屏：真实截图 + 遮盖 ========== */
+.hero{height:900px;background:url(".qa-shots/01-home-1440.png") 0 0/1440px 900px no-repeat;position:relative}
+/* 盖掉底部那排项目文字，复用站点 .soil 渐变 */
+.maskRoots{position:absolute;left:250px;top:752px;width:1190px;height:148px;
+  background:linear-gradient(var(--soil) 0%,var(--soil-deep) 46%,var(--soil-end) 100%) 0 -230px/100% 378px no-repeat;
+  mask:linear-gradient(to bottom,transparent,#000 30px),linear-gradient(to right,transparent,#000 56px);
+  mask-composite:intersect}
+.maskRoots::after{content:"";position:absolute;inset:0;opacity:.5;
+  background:repeating-linear-gradient(177deg,rgb(120 100 72 / 5.5%) 0 1px,transparent 1px 14px)}
+/* 盖掉自述第二句（原「七个项目从同一套根系长出来，按时间从左往右。」）
+   背景横跨水彩晕染块边界：左侧 #ebf0e0，右侧 #dce7cb，故用分层渐变还原 */
+.maskLine{position:absolute;left:86px;top:344px;width:336px;height:74px;
+  background:
+    linear-gradient(to bottom,rgb(220 231 203 / 92%),rgb(220 231 203 / 88%) 62%,rgb(220 231 203 / 0%) 100%),
+    linear-gradient(to right,#edf2e3 0%,#ecf1e1 44%,#e4ecd6 62%,#dce7cb 78%,#d9e4c5 100%),
+    linear-gradient(to bottom,#edf2e3,#ebf0e0);
+  background-blend-mode:normal,normal,normal;
+  mask:linear-gradient(to right,transparent,#000 14px,#000 calc(100% - 14px),transparent),
+       linear-gradient(to bottom,transparent,#000 10px,#000 calc(100% - 10px),transparent);
+  mask-composite:intersect}
+/* 左半部其实是均匀的浅色，单独盖一层保证文字底干净 */
+.maskLine::after{content:"";position:absolute;left:0;top:0;width:172px;height:100%;
+  background:linear-gradient(to bottom,#edf2e3,#ebf0e0);
+  mask:linear-gradient(to right,#000 76%,transparent),
+       linear-gradient(to bottom,transparent,#000 8px,#000 calc(100% - 8px),transparent);
+  mask-composite:intersect}
+.newLine{position:absolute;left:93px;top:350px;width:326px;color:#4a5142;
+  font-size:15.5px;line-height:1.98;letter-spacing:.01em;z-index:3}
+/* 盖掉两个按钮，一起重绘（新主按钮更宽，会挤到「查看履历」） */
+.maskBtn{position:absolute;left:84px;top:446px;width:300px;height:70px;
+  background:linear-gradient(to bottom,#eaf0df,#e8eeda);
+  mask:linear-gradient(to right,transparent,#000 12px,#000 calc(100% - 12px),transparent),
+       linear-gradient(to bottom,transparent,#000 8px,#000 calc(100% - 8px),transparent);
+  mask-composite:intersect}
+.newBtn,.ghostBtn{position:absolute;top:455px;height:53px;display:inline-flex;align-items:center;
+  justify-content:center;gap:7px;font-size:15px;letter-spacing:.06em;text-decoration:none;z-index:3}
+.newBtn{left:93px;padding:0 20px;background:var(--green);color:#fff;
+  box-shadow:0 2px 0 rgb(60 84 46 / 26%)}
+.ghostBtn{left:258px;padding:0 22px;color:#4a5142;background:#f6f8f0;
+  border:1px solid rgb(95 130 80 / 42%)}
+.newBtn .arw{transition:transform .2s ease}
+.newBtn:hover .arw{transform:translateY(3px)}
+.pin{position:absolute;padding:5px 11px;border-radius:4px;background:rgb(184 115 74 / 94%);
+  color:#fff;font:500 12px/1.5 var(--mono);letter-spacing:.04em;white-space:nowrap;z-index:9;
+  box-shadow:0 4px 12px rgb(120 70 40 / 30%)}
+.pin::after{content:"";position:absolute;width:8px;height:8px;background:inherit;
+  transform:rotate(45deg)}
+.pin.p1{left:432px;top:812px}
+.pin.p1::after{left:-3px;top:calc(50% - 4px)}
+.pin.p2{left:432px;top:468px}
+.pin.p2::after{left:-3px;top:calc(50% - 4px)}
+
+/* ========== 项目目录（新） ========== */
+.dir{background:linear-gradient(var(--soil-end) 0%,#e9e3d5 12%,var(--paper) 34%);
+  padding:74px clamp(20px,6vw,88px) 78px}
+.dirHead{max-width:62ch;margin:0 auto 46px;text-align:center}
+.eyebrow{display:flex;gap:9px;align-items:center;justify-content:center;margin:0 0 16px;
+  color:var(--green);font:500 12px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase}
+.eyebrow::before,.eyebrow::after{width:26px;height:1px;content:"";background:currentcolor;opacity:.6}
+.dirHead h2{margin:0 0 12px;font-size:34px;font-weight:400;letter-spacing:.01em;color:#3c4136}
+.dirHead p{margin:0;color:var(--ink-muted);font-size:14px;line-height:1.8}
+
+.groupLabel{max-width:1120px;margin:0 auto 26px;display:flex;align-items:baseline;gap:14px}
+.groupLabel b{font-size:17px;font-weight:600;letter-spacing:.04em;color:#3c4136}
+.groupLabel span{color:var(--meta);font:400 12px/1 var(--mono);letter-spacing:.1em}
+.groupLabel::after{content:"";flex:1;height:1px;background:rgb(95 130 80 / 20%)}
+
+.major{max-width:1120px;margin:0 auto 56px;display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 72px}
+.item{display:block;text-decoration:none;color:inherit;padding-bottom:4px}
+.item .nm{display:inline-block;font-size:22px;letter-spacing:.03em;color:#3c4136;
+  border-bottom:1px solid transparent;transition:border-color .18s ease,color .18s ease}
+.item .arw{color:var(--clay);opacity:0;margin-left:6px;display:inline-block;
+  transition:opacity .18s ease,transform .18s ease}
+.item .en{display:block;margin-top:7px;color:var(--time);font:500 12px/1.4 var(--mono);letter-spacing:.11em}
+.item .ds{display:block;margin-top:8px;color:var(--desc);font-size:14px;line-height:1.7}
+.item .st{display:inline-block;margin-top:10px;color:var(--meta);
+  font:500 11.5px/1.5 var(--mono);letter-spacing:.06em}
+.item:hover .nm,.item:focus-visible .nm{color:var(--clay);border-bottom-color:var(--clay)}
+.item:hover .arw{opacity:1;transform:translateX(3px)}
+.item:focus-visible{outline:2px solid var(--green);outline-offset:6px;border-radius:3px}
+
+.minor{max-width:1120px;margin:0 auto;display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 72px}
+.minor .item .nm{font-size:17px}
+.minor .item .ds{font-size:13px;margin-top:6px}
+
+.carousel{max-width:1120px;margin:64px auto 0;border:1px dashed rgb(95 130 80 / 34%);
+  border-radius:12px;padding:40px 30px;text-align:center;color:var(--ink-muted);
+  background:rgb(251 249 242 / 60%)}
+.carousel b{display:block;color:#3c4136;font-size:15px;font-weight:600;margin-bottom:8px}
+.carousel span{font-size:13px;line-height:1.8}
+
+.notes{margin:30px auto 0;max-width:96ch}
+.notes h3{font-size:15px;font-weight:600;margin:26px 0 8px;letter-spacing:.03em}
+.notes p,.notes li{color:var(--ink-muted);font-size:13px;line-height:1.8}
+.notes ul{margin:6px 0;padding-left:20px}
+.notes b{color:var(--ink)}
+.q{background:#fdf8f0;border-left:3px solid var(--clay);padding:12px 16px;border-radius:0 6px 6px 0;margin:12px 0}
+@media (max-width:900px){.major,.minor{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>方案三效果图<span class="tagline">首屏撤目录 · 项目区接住入口</span></h1>
+<p class="sub">首屏用真实截图，底部那排项目文字已按方案盖掉，主按钮与自述第二句按 Codex 建议改写（橙色标签是说明，不是页面元素）。下半部分是新设计的项目目录，紧接首屏。</p>
+
+<div class="shell"><div class="fit"><div class="frame" id="f1">
+  <!-- 首屏 -->
+  <div class="hero">
+    <div class="maskRoots"></div>
+    <div class="maskLine"></div>
+    <div class="newLine">从求职工具到内容 Agent，<br>我把想法一步步做成可验证的作品。</div>
+    <div class="maskBtn"></div>
+    <a class="newBtn" href="#dir">看我的项目 <span class="arw">↓</span></a>
+    <a class="ghostBtn" href="#">查看履历</a>
+    <div class="pin p1">土地留白：不再摆一份完整清单</div>
+    <div class="pin p2">主按钮改为向下，目的地在下方</div>
+  </div>
+
+  <!-- 项目目录 -->
+  <section class="dir" id="dir">
+    <div class="dirHead">
+      <p class="eyebrow">Projects</p>
+      <h2>从同一套根系长出来</h2>
+      <p>六个项目，按时间从早到晚。每一个都能点进去看完整的产品思路。</p>
+    </div>
+
+    <div class="groupLabel"><b>先看这四个</b><span>2026.04 – 2026.08</span></div>
+    <div class="major">
+      <a class="item" href="#">
+        <span class="nm">投得过<span class="arw">→</span></span>
+        <span class="en">Ready2Apply · 2026.04</span>
+        <span class="ds">把市场要什么和我能拿出什么摆在一起比，算出差距，再拆成能做完的任务——治的是投递拖延。</span>
+        <span class="st">开源 · 全栈</span>
+      </a>
+      <a class="item" href="#">
+        <span class="nm">一人品牌部<span class="arw">→</span></span>
+        <span class="en">SoloPR · 2026.07</span>
+        <span class="ds">一人公司的品牌就是创始人本人的品牌。把每次宣发从「这回该怎么写」变成一条能定期跑完的流程。</span>
+        <span class="st">赛道优胜奖 · 1 / 12</span>
+      </a>
+      <a class="item" href="#">
+        <span class="nm">柴愈<span class="arw">→</span></span>
+        <span class="en">pet-companion · 2026.05</span>
+        <span class="ds">养一只柴犬：喂它、陪它玩、带它出门散步。它不是助手，是伙伴。</span>
+        <span class="st">黑客松两天 · 已上线</span>
+      </a>
+      <a class="item" href="#">
+        <span class="nm">出海锦囊<span class="arw">→</span></span>
+        <span class="en">Listing L10N · 2026.08</span>
+        <span class="ds">投进一份中文商品资料，产出图片、视频和三语介绍。难的不是翻译，是一个字都不能动商品的客观事实。</span>
+        <span class="st">千问比赛 23 / 429</span>
+      </a>
+    </div>
+
+    <div class="groupLabel"><b>还有两个</b><span>同样可以点开</span></div>
+    <div class="minor">
+      <a class="item" href="#">
+        <span class="nm">实证写作台<span class="arw">→</span></span>
+        <span class="en">empirical-paper · 2026.05</span>
+        <span class="ds">写课程实证论文时，人出思路、出数据、定框架，剩下那些反复的活交给流程。</span>
+        <span class="st">开源 · Claude Code Skill</span>
+      </a>
+      <a class="item" href="#">
+        <span class="nm">她的姊妹节<span class="arw">→</span></span>
+        <span class="en">Her Sisters' Festival · 2026.08</span>
+        <span class="ds">48 小时黑客松作品：陪一位苗族女孩过完姊妹节的一天，风俗就藏在这些事情当中。</span>
+        <span class="st">48 小时 · 可试玩</span>
+      </a>
+    </div>
+
+    <div class="carousel">
+      <b>↓ 现有的大图轮播继续放在这里</b>
+      <span>它原来底部那条「时间线跳转」已经被上面的目录接管，不再重复第三份清单。</span>
+    </div>
+  </section>
+</div></div></div>
+
+<div class="notes">
+<h3>这版在验证什么</h3>
+<ul>
+<li><b>土地空不空。</b> 撤掉那排文字后，信箱、人物、柴犬、树根之间的关系有没有变清爽，还是显得缺东西。</li>
+<li><b>第一屏不出现项目名，代价有多大。</b> 调研显示 HR 平均只看 3 分钟，所以主按钮必须够明确、目录必须紧接首屏。</li>
+<li><b>四个重点 + 两个的分组</b>能不能替代原来「首屏字号放大」那套主次表达。</li>
+</ul>
+
+<h3>需要你定的两处措辞</h3>
+<div class="q"><b>「还有两个」</b>——Codex 原话是「也做过这些尝试」，但实证写作台是唯一有量化外部反馈（3,785 曝光）且开源带 star 的项目，放在「尝试」里被低估了。这里先用中性的「还有两个」。</div>
+<div class="q"><b>自述第二句</b>——原句「七个项目从同一套根系长出来，按时间从左往右」承诺的是根系目录，撤掉目录后必须改。图中用的是 Codex 建议的方向：「从求职工具到内容 Agent，我把想法一步步做成可验证的作品。」</div>
+
+<h3>与草稿的差异</h3>
+<p>目录里用的是 <b>content-draft-260907.md 第四版</b>的中文名、一句话和状态标签，日期已按材料库校正（投得过 2026.04、实证写作台 2026.05、柴愈 2026.05）。RepoLoop 已按草稿下线；代码里目前仍是 7 个，落地时一并处理。</p>
+<p>重点四项沿用草稿的推荐组合：投得过、出海锦囊、一人品牌部、柴愈。<b>实证写作台被排在「还有两个」里，这一点值得你复核</b>——它在开发方向是 P0，在产品方向是 P1。</p>
+</div>
+</div>
+<script>
+function fit(){document.querySelectorAll('.fit').forEach(function(b){
+  var f=b.querySelector('.frame'),s=Math.min(1,b.clientWidth/1440);
+  f.style.transform='scale('+s+')';b.style.height=(f.scrollHeight*s)+'px';});}
+addEventListener('load',fit);addEventListener('resize',fit);fit();
+</script>
+</body>
+</html>
