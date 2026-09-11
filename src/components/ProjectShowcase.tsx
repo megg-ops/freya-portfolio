@@ -11,7 +11,7 @@ import styles from "./ProjectShowcase.module.css";
  * 所以底部那条时间线始终列出全部项目——它既是「一眼看全貌」的索引，也是
  * 走马灯的导航。舞台负责展示感，时间线负责信息完整。
  *
- * 自动播放遵守 PRODUCT.md 的动效原则：hover／focus／reduced-motion 下一律停，
+ * 自动播放遵守 docs/PRODUCT.md 的动效原则：hover／focus／reduced-motion 下一律停，
  * 并且给显式的暂停按钮，不做无法叫停的持续运动。
  */
 
